@@ -14,14 +14,16 @@ const MotionBridge = (() => {
     const data = event.data;
     if (data.type === 'restore') {
       if (data.state) hooks.restore(data.state);
+      hooks.pause();
       changed();
+      send('restored', {request: data.request, state: hooks.snapshot()});
     } else if (data.type === 'pause') {
       hooks.pause();
       send('paused', {request: data.request, state: hooks.snapshot()});
     }
   });
   return {
-    connect(value) { hooks = value; send('ready'); },
+    connect(value) { hooks = value; if (embedded) hooks.pause(); send('ready', {acknowledgesRestore: true}); },
     changed,
     explored() { send('explored'); }
   };

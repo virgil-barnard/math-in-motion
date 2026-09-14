@@ -109,13 +109,13 @@ def build():
         write(name, html)
 
     foundation = (ROOT / 'src/shell.html').read_text()
-    for token, value in {'__STYLE__': (ROOT / 'src/style.css').read_text(), '__CORE__': (ROOT / 'src/core.js').read_text(), '__APP__': (ROOT / 'src/app.js').read_text(), '__EDITION__': 'all', '__TITLE__': 'Foundations · Mathematics in Motion'}.items():
+    for token, value in {'__STYLE__': expand(ROOT / 'src/style.css'), '__CORE__': (ROOT / 'src/core.js').read_text(), '__APP__': (ROOT / 'src/app.js').read_text(), '__EDITION__': 'all', '__TITLE__': 'Foundations · Mathematics in Motion'}.items():
         foundation = foundation.replace(token, value)
     write('foundations.html', foundation)
     (OUT / '.nojekyll').write_text('')
     (ROOT / 'evidence').mkdir(exist_ok=True)
-    (ROOT / 'evidence/build-manifest.json').write_text(json.dumps({'version': '0.4.0', 'lessons': len(catalog), 'files': files}, indent=2) + '\n')
-    print(json.dumps({'version': '0.4.0', 'lessons': len(catalog), 'files': files}, indent=2))
+    (ROOT / 'evidence/build-manifest.json').write_text(json.dumps({'version': '0.4.1', 'lessons': len(catalog), 'files': files}, indent=2) + '\n')
+    print(json.dumps({'version': '0.4.1', 'lessons': len(catalog), 'files': files}, indent=2))
 
 
 if __name__ == '__main__':

@@ -4,9 +4,11 @@
 <body>
 <main id="collection">
   <h1 class="sr-only">Mathematics in Motion</h1>
-  <header class="collection-header"><button id="map-button" type="button" aria-label="Open the lesson constellation" aria-expanded="true" aria-controls="lesson-map"></button><div id="current-glyph" aria-hidden="true"></div><button id="continue-button" type="button" aria-label="Open a suggested next lesson"></button></header>
+  <header class="collection-header"><button id="map-button" type="button" aria-label="Open the lesson constellation" aria-expanded="true" aria-controls="lesson-map"></button><div id="lesson-marker"><div id="current-glyph" aria-hidden="true"></div><button id="retry-button" type="button" aria-label="Retry opening the lesson" hidden></button></div><button id="continue-button" type="button" aria-label="Open a suggested next lesson"></button></header>
+  <div id="lesson-surface" aria-busy="false">
   <section id="lesson-map" aria-label="Opening path" aria-describedby="map-description"><p id="map-description" class="sr-only">A small opening path. Each symbol opens a lesson. The constellation control reveals every experience.</p><div id="map-field"><svg id="map-links" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"></svg><nav id="map-nodes" aria-label="Choose a lesson"></nav></div><div id="map-paging" hidden><button id="map-prev" type="button" aria-label="Previous group of lessons"></button><div id="page-dots" aria-hidden="true"></div><button id="map-next" type="button" aria-label="Next group of lessons"></button></div><div class="scope-control"><button id="scope-button" type="button" aria-label="Explore all lessons in the complete constellation"></button></div></section>
   <section id="lesson-frame" aria-label="Current mathematical experience" hidden></section>
+  </div>
   <p id="catalog-status" class="sr-only" aria-live="polite"></p>
 </main>
 <script>const MotionCatalog=__CATALOG__;const MotionPayloads=__PAYLOADS__;</script>

@@ -15,6 +15,10 @@ question that the action has created. Branch and the smaller opening path are
 the first implementation of this hypothesis. See [Encounter design](encounters.md)
 for the specific observations to seek and the proposed route toward deeper ideas.
 
+The 0.4.1 pass carries this restraint into navigation and shared controls. See
+[Continuity review](continuity.md) for the aesthetic judgment and
+[Next encounters](../curriculum/next-encounters.md) for the concrete gap designs.
+
 ## The first shared vocabulary
 
 | Visual role | Treatment in this prototype | What it carries forward |

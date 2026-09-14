@@ -112,15 +112,32 @@ the document is ready. `pause()` must stop animations, cancel live gestures,
 and suspend ongoing audio. Snapshots contain only JSON data and a version.
 Validate restored data. Do not serialize DOM, audio, or GPU objects.
 
-The host exchanges `ready`, `restore`, `pause`, `paused`, and `state` messages on
-the `mathematics-in-motion/v1` channel. Both sides check the message's source
-window; the host checks the lesson ID. A pause request is acknowledged with the
-current state before another document replaces it. Navigation falls back after
-180 ms if a lesson fails to respond. Call `changed()` after a meaningful state
-change if maintaining an additional recent snapshot is useful.
+The host exchanges `ready`, `restore`, `restored`, `pause`, `paused`, and `state`
+messages on the `mathematics-in-motion/v1` channel. Both sides check the message's
+source window; the host checks the lesson ID. Pause and restoration replies
+carry the matching request ID. The bridge advertises `acknowledgesRestore` in
+`ready`, pauses embedded documents before readiness, and acknowledges restoration
+after the synchronous restore hook and pause have finished. Rendering should
+establish the inspectable state synchronously; asynchronous asset loading belongs
+before `connect()`. Call `changed()` after a meaningful state change if maintaining
+an additional recent snapshot is useful.
 
-Only one lesson document is mounted. Opening the map pauses it. Moving to
-another lesson destroys the old document and later restores its snapshot.
+The host pauses the outgoing document before navigation, with a 180 ms fallback.
+It prepares the incoming document at its stage dimensions, transparent and inert,
+while keeping the previous view visible. Only after restoration is acknowledged
+does it fade out the old surface, swap, and fade in the new one. At most two
+documents are mounted during preparation; only the arrived lesson is interactive.
+Opening the map pauses and keeps the current document. Changing lessons removes
+the old document at the handoff. A six-second readiness timeout retains the
+previous view and offers retry. Older v1 bridges use ordered `restore` then
+`pause` messages; the correlated `paused` reply confirms the restore completed.
+
+The catalog owns navigation fades; embedded lessons should avoid competing
+whole-document entrance motion. Reduced motion removes these fades. Rapid
+navigation cancels pending work; focus moves only after arrival. Each map scope
+remembers its page, scroll, and chosen node. The small optional kit and foundation
+engine share `src/timeline.css`, a native inspection control with no domain logic.
+
 Snapshots last for the current collection session; refresh starts fresh.
 Only visits are saved locally, with failure handled when storage is unavailable.
 This is not an assessment or a learner profile.
