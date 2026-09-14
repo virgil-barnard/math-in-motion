@@ -50,6 +50,16 @@ with tempfile.TemporaryDirectory(dir=ROOT) as tmp:
     assert len(b.discover(lessons)) == baseline
     checks += 1
     manifest['status'] = 'ready'
+    manifest['opening_order'] = -1
+    write()
+    reject(lambda: b.discover(lessons))
+    manifest['opening_order'] = True
+    write()
+    reject(lambda: b.discover(lessons))
+    manifest['opening_order'] = 0
+    write()
+    reject(lambda: b.discover(lessons))
+    del manifest['opening_order']
     manifest['builds_on'] = ['missing']
     write()
     reject(lambda: b.discover(lessons))

@@ -6,6 +6,15 @@ The recurring pattern is **identity through change**. A disc keeps its partner a
 
 This is the series' organizing idea. The material can become more powerful without requiring a new visual vocabulary on every screen.
 
+## The current design correction
+
+Version 0.4.0 responds to feedback that introducing a graph and matrix together
+felt abrupt. Make a representation useful before asking the learner to interpret
+it: establish an action, repeat it, expose a contrast, and let a record answer a
+question that the action has created. Branch and the smaller opening path are
+the first implementation of this hypothesis. See [Encounter design](encounters.md)
+for the specific observations to seek and the proposed route toward deeper ideas.
+
 ## The first shared vocabulary
 
 | Visual role | Treatment in this prototype | What it carries forward |

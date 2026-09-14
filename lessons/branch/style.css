@@ -1,0 +1,2 @@
+.piece.branch-traveler{width:64px;height:64px;z-index:4}.piece.branch-traveler svg{width:60px;height:60px;filter:drop-shadow(0 0 12px #eedbb619)}.piece.branch-choice{width:56px;height:56px;z-index:2;cursor:pointer}.piece.branch-choice svg{width:52px;height:52px;filter:none}.piece.branch-home{width:56px;height:56px;cursor:pointer;z-index:2}.piece.branch-home svg{width:48px;height:48px;filter:none}
+input[type=range]:disabled{opacity:.28;cursor:default}

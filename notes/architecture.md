@@ -1,9 +1,9 @@
 # A growing language of mechanisms
 
-Implemented in version 0.3.0: nine independent lesson documents, a generated
+Implemented in version 0.4.0: ten independent lesson documents, a generated
 constellation menu, a local authoring contract, and a single-file collection
-alongside the lightweight Pages edition. Connections, Through, and Fold extend
-the existing boundary without adding lesson-specific code to the catalog.
+alongside the lightweight Pages edition. Branch extends the local lesson boundary.
+The catalog now separates a small opening path from the complete constellation.
 
 ## The curriculum is a graph
 
@@ -19,11 +19,20 @@ between suggested progression and conceptual connection. It is a navigation
 proposal, not a claim that mathematical understanding has one fixed order.
 [Hasse diagrams](https://mathworld.wolfram.com/HasseDiagram.html).
 
-The current map shows the nine ready lessons. Solid paths carry progression;
-dotted paths carry cross-connections. Every node opens immediately, and a
-subtle dot means previously visited. There are no locks, age labels, mastery
-scores, or unsupported inferences about a child's knowledge. The next control
-offers a suggested continuation, considering unvisited precursor lessons.
+The initial map shows four encounters selected through optional `opening_order`
+metadata: Correspondence, Membership, Branch, and Return. The next control follows
+that authored sequence, then opens the complete constellation. Visiting a lesson
+is never used to infer readiness for an advanced successor. The opening sequence
+is a navigation suggestion, not a prerequisite proof or an age classification.
+
+A constellation control reveals every ready lesson. Solid paths carry suggested
+dependencies; dotted paths carry conceptual connections. All lessons and direct
+links remain open. A path control returns to the small opening. No lesson state
+is erased by changing map scope. Hashes preserve `#map` for the full constellation
+and add `#start` for the opening. The opening list is discovered from manifests;
+there is no lesson-ID list in the host. Duplicate or invalid opening orders fail
+the build. Catalogs without explicit opening metadata fall back to their first
+four ordered entries.
 
 The generic layout supports groups of at most nine lessons and up to three
 nodes per row, reduced to two on narrow screens. Additional groups remain reachable through paging. A 24-lesson
@@ -83,7 +92,7 @@ members of one conserved collection. Playback can be paused and scrubbed, and
 changing a selected operation first returns the probes to their starting
 positions.
 
-## Two new bridges between representations
+## Bridges between representations
 
 Connections uses editable source-column/destination-row entries, matching the
 existing column-vector permutation convention. Undirected mode is symmetric;
@@ -108,6 +117,21 @@ work. The CSS 3D container stays opaque and unfiltered to preserve compositing.
 All three additions carry their own mathematical and exported-event checks.
 The check runner now discovers optional interaction-check paths in manifests,
 so adding a lesson does not require editing a central interaction registry.
+
+## A smaller encounter before another representation
+
+Branch begins with one bead and one fork. The next example repeats that action,
+then keeps an earlier journey as a dashed trace. Two different sequences can
+meet at the same arrival. Its pure model distinguishes the current path, the
+last completed path, and the comparison trace; a timeline only inspects an
+existing path. Direct dragging projects onto the same curved rails used for
+playback. The first tap demonstrates one bounded action. There is no idle hint
+loop, stochastic generator, histogram, or new renderer dependency.
+
+The user reported that graph/matrix representations arrived too abruptly.
+`notes/encounters.md` records this design correction and the next hypotheses.
+The existing studies remain useful later destinations while simpler experiences
+build the questions that their representations can answer.
 
 ## What we build toward
 

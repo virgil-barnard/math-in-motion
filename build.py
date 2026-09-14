@@ -33,6 +33,8 @@ def discover(directory=None):
             raise ValueError(f'Reserved output name: {item["id"]}')
         if not isinstance(item['order'], (int, float)) or isinstance(item['order'], bool):
             raise ValueError(f'Order must be numeric: {path}')
+        if 'opening_order' in item and (type(item['opening_order']) is not int or item['opening_order'] < 0):
+            raise ValueError(f'Opening order must be a nonnegative integer: {path}')
         for key in ('builds_on', 'related', 'contexts'):
             if not isinstance(item[key], list) or not all(isinstance(x, str) for x in item[key]) or len(set(item[key])) != len(item[key]):
                 raise ValueError(f'Invalid {key}: {path}')
@@ -47,6 +49,9 @@ def discover(directory=None):
     by_id = {x['id']: x for x in catalog}
     if len(by_id) != len(catalog):
         raise ValueError('Duplicate lesson IDs')
+    opening_orders = [x['opening_order'] for x in catalog if 'opening_order' in x]
+    if len(set(opening_orders)) != len(opening_orders):
+        raise ValueError('Opening order must be unique')
     visiting, visited = set(), set()
 
     def visit(item):
@@ -109,8 +114,8 @@ def build():
     write('foundations.html', foundation)
     (OUT / '.nojekyll').write_text('')
     (ROOT / 'evidence').mkdir(exist_ok=True)
-    (ROOT / 'evidence/build-manifest.json').write_text(json.dumps({'version': '0.3.0', 'lessons': len(catalog), 'files': files}, indent=2) + '\n')
-    print(json.dumps({'version': '0.3.0', 'lessons': len(catalog), 'files': files}, indent=2))
+    (ROOT / 'evidence/build-manifest.json').write_text(json.dumps({'version': '0.4.0', 'lessons': len(catalog), 'files': files}, indent=2) + '\n')
+    print(json.dumps({'version': '0.4.0', 'lessons': len(catalog), 'files': files}, indent=2))
 
 
 if __name__ == '__main__':

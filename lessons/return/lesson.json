@@ -16,5 +16,6 @@
     "transformations"
   ],
   "entry": "entry.html",
-  "glyph": "glyph.svg"
+  "glyph": "glyph.svg",
+  "opening_order": 3
 }
