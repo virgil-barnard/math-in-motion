@@ -1,0 +1,466 @@
+<!doctype html>
+<html lang="en" data-lesson="bundle">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"><meta name="theme-color" content="#0a1420"><meta name="description" content="Move a bundle of shapes, unpack its contents, and regroup the same objects. A wordless offline mathematical encounter."><title>Bundle — Mathematics in Motion</title><style>:root{color-scheme:dark;--bg:#0a1420;--ink:#eedbb6;--aqua:#83d6d1;--violet:#b7a4e8;--line:#648896;--soft:#aec4cb}
+*{box-sizing:border-box}html,body{margin:0;min-width:280px;min-height:100%;background:var(--bg)}body{color:var(--ink);font-family:system-ui,sans-serif;background:radial-gradient(ellipse at 50% 35%,#152c3b, #0a1420 70%);-webkit-tap-highlight-color:transparent}button,input{font:inherit}button{border:0;background:none;color:inherit;cursor:pointer;padding:0;touch-action:manipulation;-webkit-user-select:none;user-select:none}button:focus-visible,input:focus-visible{outline:2px solid #f5e5bb;outline-offset:4px}button svg{width:100%;height:100%;pointer-events:none}svg{display:block}button:active{filter:brightness(1.2)}[hidden]{display:none!important}
+.sr-only{position:absolute!important;width:1px!important;height:1px!important;padding:0!important;margin:-1px!important;overflow:hidden!important;clip-path:inset(50%)!important;white-space:nowrap!important;border:0!important}
+#lesson-app{width:min(100%,1000px);height:100vh;height:100svh;min-height:570px;max-height:1000px;margin:auto;display:grid;grid-template-rows:64px minmax(370px,1fr) 132px;padding:env(safe-area-inset-top) 18px env(safe-area-inset-bottom)}
+.lesson-header{display:flex;align-items:center;justify-content:center;position:relative}.lesson-glyph{width:34px;height:34px;opacity:.75}.lesson-header #sound{position:absolute;right:0;width:46px;height:46px;padding:13px;opacity:.6;border-radius:50%}.lesson-header #sound[aria-pressed=true]{opacity:1}
+#stage{position:relative;min-height:370px;isolation:isolate}#scene,#objects{position:absolute;inset:0;width:100%;height:100%}#scene{pointer-events:none;overflow:visible}#objects{pointer-events:none}.piece{position:absolute;transform:translate(-50%,-50%);width:48px;height:48px;border-radius:50%;pointer-events:auto;touch-action:none;display:grid;place-items:center;z-index:2;cursor:grab}.piece svg{width:44px;height:44px;filter:drop-shadow(0 0 9px #eedbb61a)}.piece:hover{background:#83d6d10b}.piece:active,.piece.dragging{cursor:grabbing;background:#eedbb610}.piece.choice{width:64px;height:56px;border-radius:14px;cursor:pointer;background:#83d6d108;border:1px solid #64889655}.piece.choice[aria-pressed=true]{border-color:#eedbb6aa;background:#eedbb60d}.piece.choice svg{width:48px;height:42px;filter:none}.piece.gate-target{width:78%;height:70px;border-radius:15px;background:transparent;z-index:1}
+.lesson-footer{display:flex;flex-direction:column;justify-content:center;gap:12px;padding:0 max(8px,5%)}.transport{display:flex;align-items:center;gap:18px}.round-control{width:48px;height:48px;flex:none;border:1px solid #afc3ca40;border-radius:50%;padding:15px;background:#83d6d108}.quiet-control{width:46px;height:46px;flex:none;border-radius:50%;padding:13px;opacity:.7}.quiet-control:hover{background:#83d6d10d;opacity:1}.tools{display:flex;align-items:center;justify-content:center;gap:22px}.example-progress{display:flex;gap:10px;min-width:80px;justify-content:center;align-items:center}.example-dot{width:4px;height:4px;border-radius:50%;background:#64889666}.example-dot.active{background:var(--ink);box-shadow:0 0 0 3px #eedbb619}
+/* One inspection control across the foundation engine and portable author kit. */
+input[type=range]{--progress:0%;width:100%;min-width:0;height:48px;appearance:none;-webkit-appearance:none;background:transparent;cursor:ew-resize;touch-action:pan-y;margin:0}input[type=range]::-webkit-slider-runnable-track{height:3px;border-radius:8px;background:linear-gradient(to right,rgba(234,209,155,.7) 0%,rgba(234,209,155,.7) var(--progress),rgba(125,159,174,.22) var(--progress),rgba(125,159,174,.22) 100%)}input[type=range]::-moz-range-track{height:3px;border-radius:8px;background:rgba(125,159,174,.22)}input[type=range]::-moz-range-progress{height:3px;background:rgba(234,209,155,.7)}input[type=range]::-webkit-slider-thumb{appearance:none;-webkit-appearance:none;width:18px;height:18px;border-radius:50%;border:4px solid #152736;background:var(--ink);box-shadow:0 0 0 1px rgba(238,219,182,.42);margin-top:-7.5px}input[type=range]::-moz-range-thumb{width:10px;height:10px;border-radius:50%;border:4px solid #152736;background:var(--ink);box-shadow:0 0 0 1px rgba(238,219,182,.42)}
+
+.embedded #lesson-app{grid-template-rows:42px minmax(370px,1fr) 128px;min-height:540px}.embedded .lesson-glyph{visibility:hidden;width:26px;height:26px}
+@media(max-width:560px){#lesson-app{padding-left:10px;padding-right:10px}.lesson-footer{padding:0 12px}.transport{gap:12px}}
+@media(prefers-reduced-motion:reduce){*,*:before,*:after{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
+
+.piece.unit{z-index:1;border-radius:40px;background:transparent}.piece.unit:hover{background:#83d6d106}.piece.unit.dragging{background:#83d6d108}.piece.unit:focus-visible{outline-offset:5px}.piece.bundle-token{z-index:3}.piece.bundle-token[aria-pressed=true]{background:#eedbb60a;box-shadow:0 0 0 1px #eedbb665}.piece.release{z-index:2;cursor:pointer;width:52px;height:52px}.piece.release svg{width:48px;height:48px;filter:none}#timeline:disabled{opacity:.35;cursor:default}#rewind:disabled{opacity:.24;cursor:default}
+</style></head>
+<body>
+<main id="lesson-app">
+  <h1 id="lesson-title" class="sr-only"></h1>
+  <header class="lesson-header"><div id="lesson-glyph" class="lesson-glyph" aria-hidden="true"></div><button id="sound" type="button" aria-label="Enable optional sound" aria-pressed="false"></button></header>
+  <section id="stage" aria-labelledby="lesson-title" aria-describedby="lesson-description"><svg id="scene" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"></svg><div id="objects"></div></section>
+  <footer class="lesson-footer">
+    <div class="transport"><button id="play" class="round-control" type="button" aria-label="Play the transformation"></button><label for="timeline" class="sr-only">Inspect the transformation</label><input id="timeline" type="range" min="0" max="1000" step="1" value="0"><button id="rewind" class="quiet-control" type="button" aria-label="Return to the beginning"></button></div>
+    <div class="tools"><div id="example-progress" class="example-progress" aria-hidden="true"></div><button id="example" class="quiet-control" type="button" aria-label="Explore another example"></button></div>
+  </footer>
+  <p id="lesson-description" class="sr-only"></p><p id="status" class="sr-only" aria-live="polite" aria-atomic="true"></p>
+</main>
+
+<script>/* Portable document contract v1. Parent identity is checked; no network access. */
+const MotionBridge = (() => {
+  const channel = 'mathematics-in-motion/v1';
+  let hooks = null;
+  const lesson = document.documentElement.dataset.lesson;
+  const embedded = window.parent !== window;
+  if (embedded) document.documentElement.classList.add('embedded');
+  function send(type, extra = {}) {
+    if (embedded) window.parent.postMessage({channel, lesson, type, ...extra}, '*');
+  }
+  function changed() { if (hooks) send('state', {state: hooks.snapshot()}); }
+  window.addEventListener('message', event => {
+    if (!embedded || event.source !== window.parent || event.data?.channel !== channel || !hooks) return;
+    const data = event.data;
+    if (data.type === 'restore') {
+      if (data.state) hooks.restore(data.state);
+      hooks.pause();
+      changed();
+      send('restored', {request: data.request, state: hooks.snapshot()});
+    } else if (data.type === 'pause') {
+      hooks.pause();
+      send('paused', {request: data.request, state: hooks.snapshot()});
+    }
+  });
+  return {
+    connect(value) { hooks = value; if (embedded) hooks.pause(); send('ready', {acknowledgesRestore: true}); },
+    changed,
+    explored() { send('explored'); }
+  };
+})();
+</script>
+<script>/* Small optional author kit. Lessons own models, state, geometry, and gestures. */
+const MotionKit = (() => {
+  const C = ['#eedbb6','#83d6d1','#b7a4e8','#d8a78b'];
+  const shapes = ['circle','square','triangle','diamond'];
+  const clamp = (x,a=0,b=1) => Math.max(a,Math.min(b,x));
+  const smooth = x => x*x*(3-2*x);
+  const f = x => Number(x).toFixed(3);
+  const svg = body => `<svg viewBox="0 0 48 48" aria-hidden="true" xmlns="http://www.w3.org/2000/svg">${body}</svg>`;
+  function shape(kind,x,y,r,color=C[0],filled=true,opacity=1) {
+    const a=`fill="${filled?color:'none'}" stroke="${color}" stroke-width="${filled?.7:1.2}" opacity="${opacity}" stroke-linejoin="round"`;
+    if(kind==='circle')return `<circle cx="${f(x)}" cy="${f(y)}" r="${r}" ${a}/>`;
+    if(kind==='square')return `<rect x="${f(x-r)}" y="${f(y-r)}" width="${2*r}" height="${2*r}" rx="2.5" ${a}/>`;
+    if(kind==='triangle')return `<path d="M${f(x)} ${f(y-r*1.15)}L${f(x+r)} ${f(y+r*.8)}L${f(x-r)} ${f(y+r*.8)}Z" ${a}/>`;
+    return `<path d="M${f(x)} ${f(y-r*1.2)}L${f(x+r)} ${f(y)}L${f(x)} ${f(y+r*1.2)}L${f(x-r)} ${f(y)}Z" ${a}/>`;
+  }
+  const icons={
+    play:svg('<path d="m18 10 20 14-20 14Z" fill="currentColor"/>'),
+    pause:svg('<path d="M18 12v24M30 12v24" stroke="currentColor" stroke-width="4" stroke-linecap="round"/>'),
+    rewind:svg('<path d="M12 12a16 16 0 1 1-3 20M12 3v11H2" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>'),
+    example:svg('<rect x="5" y="5" width="27" height="27" rx="8" fill="none" stroke="currentColor" opacity=".45"/><rect x="16" y="16" width="27" height="27" rx="8" fill="#102230" stroke="currentColor"/><circle cx="24" cy="24" r="2" fill="currentColor"/><circle cx="35" cy="35" r="2" fill="currentColor"/>'),
+    silent:svg('<path d="M7 18h7l10-8v28l-10-8H7ZM33 18l10 12M43 18 33 30" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>'),
+    sound:svg('<path d="M7 18h7l10-8v28l-10-8H7ZM32 17q7 7 0 14M38 10q13 14 0 28" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>')
+  };
+  function create(spec) {
+    const $=id=>document.getElementById(id);
+    const stage=$('stage'),scene=$('scene'),objects=$('objects'),range=$('timeline'),play=$('play');
+    let w=640,h=500,frame=0,animation=null,drag=null,suppress=null,lastStatus='';
+    let reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
+    let audio=null,enabled=false;
+    const buttons=new Map();
+    $('lesson-title').textContent=spec.title;
+    $('lesson-description').textContent=spec.description;
+    $('lesson-glyph').innerHTML=spec.glyph;
+    $('rewind').innerHTML=icons.rewind;$('example').innerHTML=icons.example;$('sound').innerHTML=icons.silent;
+    function announce(text) {if(text!==lastStatus){$('status').textContent=text;lastStatus=text;}}
+    function stop(){animation=null;cancelAnimationFrame(frame);frame=0;play.innerHTML=icons.play;play.setAttribute('aria-label','Play the transformation');}
+    function paint(body,items=[]) {
+      scene.innerHTML=body;
+      const seen=new Set();
+      for(const item of items){
+        seen.add(item.key);let b=buttons.get(item.key);
+        if(!b){b=document.createElement('button');b.type='button';b.dataset.key=item.key;objects.appendChild(b);buttons.set(item.key,b);}
+        b.className=`piece ${item.kind||'token'}${drag?.key===item.key?' dragging':''}`;
+        b.style.left=`${item.x}px`;b.style.top=`${item.y}px`;
+        b.setAttribute('aria-label',item.label);
+        if(item.selected!==undefined)b.setAttribute('aria-pressed',String(item.selected));
+        const art=item.art??svg(shape(item.shape||'circle',24,24,11,item.color||C[0]));
+        if(b.dataset.art!==art){b.innerHTML=art;b.dataset.art=art;}
+      }
+      for(const [key,b] of buttons)if(!seen.has(key)){b.remove();buttons.delete(key);}
+    }
+    function render(){spec.render(api);const progress=clamp(spec.progress());range.value=String(progress*1000);range.style.setProperty('--progress',`${progress*100}%`);range.setAttribute('aria-valuetext',spec.describe());}
+    function changed(){announce(spec.describe());MotionBridge.changed();}
+    function tone(index=0){
+      if(!enabled||!audio)return;
+      const time=audio.currentTime,osc=audio.createOscillator(),gain=audio.createGain();
+      osc.frequency.value=[261.63,329.63,392,523.25][Math.abs(index)%4];
+      gain.gain.setValueAtTime(.0001,time);gain.gain.exponentialRampToValueAtTime(.045,time+.015);gain.gain.exponentialRampToValueAtTime(.0001,time+.38);
+      osc.connect(gain);gain.connect(audio.destination);osc.start(time);osc.stop(time+.4);osc.onended=()=>{osc.disconnect();gain.disconnect();};
+    }
+    function tween(from,to,setter,duration=600,after=null){
+      stop();
+      if(reduced||Math.abs(to-from)<1e-8){setter(to);render();after?.();changed();return;}
+      animation={from,to,setter,start:performance.now(),duration,after};
+      play.innerHTML=icons.pause;play.setAttribute('aria-label','Pause the transformation');
+      const tick=now=>{
+        if(!animation)return;const a=animation,t=clamp((now-a.start)/a.duration);
+        a.setter(t===1?a.to:a.from+(a.to-a.from)*smooth(t));render();
+        if(t===1){stop();a.after?.();changed();}else frame=requestAnimationFrame(tick);
+      };frame=requestAnimationFrame(tick);
+    }
+    function cancelDrag(){if(!drag)return;const old=drag;drag=null;spec.cancel?.(old);try{old.button.releasePointerCapture(old.pointer);}catch{}render();}
+    function point(event){const r=stage.getBoundingClientRect();return{x:event.clientX-r.left,y:event.clientY-r.top};}
+    objects.addEventListener('pointerdown',event=>{
+      const button=event.target.closest('button[data-key]');if(!button||drag||event.button!==0)return;
+      stop();suppress=null;const p=point(event),key=button.dataset.key;
+      const detail=spec.down?.(key,p);if(!detail)return;
+      drag={...detail,key,button,pointer:event.pointerId,start:p,moved:false};
+      button.setPointerCapture(event.pointerId);render();
+    });
+    objects.addEventListener('pointermove',event=>{
+      if(!drag||drag.pointer!==event.pointerId)return;const p=point(event);
+      if(!drag.moved&&Math.hypot(p.x-drag.start.x,p.y-drag.start.y)<3)return;
+      drag.moved=true;spec.move?.(drag,p);render();
+    });
+    objects.addEventListener('pointerup',event=>{
+      if(!drag||drag.pointer!==event.pointerId)return;const ended=drag;drag=null;
+      try{ended.button.releasePointerCapture(ended.pointer);}catch{}
+      if(ended.moved){suppress=ended.key;spec.up?.(ended,point(event));render();changed();MotionBridge.explored();}
+    });
+    for(const name of ['pointercancel','lostpointercapture'])objects.addEventListener(name,event=>{if(drag?.pointer===event.pointerId){cancelDrag();changed();}});
+    objects.addEventListener('click',event=>{
+      const button=event.target.closest('button[data-key]');if(!button)return;
+      if(event.detail>0&&suppress===button.dataset.key){suppress=null;return;}
+      suppress=null;stop();spec.activate?.(button.dataset.key);render();changed();MotionBridge.explored();
+    });
+    objects.addEventListener('keydown',event=>{
+      const button=event.target.closest('button[data-key]');if(!button||!['ArrowLeft','ArrowRight','ArrowUp','ArrowDown'].includes(event.key))return;
+      if(spec.nudge){event.preventDefault();cancelDrag();stop();spec.nudge(button.dataset.key,['ArrowRight','ArrowUp'].includes(event.key)?1:-1,event.key);render();changed();}
+    });
+    play.addEventListener('click',()=>{cancelDrag();if(animation){stop();changed();return;}spec.play();render();MotionBridge.explored();});
+    $('rewind').addEventListener('click',()=>{cancelDrag();stop();spec.rewind();render();changed();});
+    $('example').addEventListener('click',()=>{cancelDrag();stop();spec.example();render();changed();tone(2);});
+    range.addEventListener('input',()=>{const p=Number(range.value)/1000;cancelDrag();stop();spec.scrub(p);render();});
+    range.addEventListener('change',()=>{spec.settle?.();render();changed();MotionBridge.explored();});
+    range.addEventListener('keydown',event=>{
+      if(!spec.step||!['ArrowLeft','ArrowRight','ArrowUp','ArrowDown'].includes(event.key))return;
+      event.preventDefault();cancelDrag();stop();spec.step(['ArrowRight','ArrowUp'].includes(event.key)?1:-1);render();changed();
+    });
+    $('sound').addEventListener('click',async()=>{
+      if(enabled){enabled=false;audio?.suspend();}else{const Audio=window.AudioContext||window.webkitAudioContext;if(!Audio){announce('Optional sound is unavailable.');return;}try{audio||=new Audio();await audio.resume();enabled=true;tone(0);}catch{announce('Optional sound could not start.');return;}}
+      $('sound').setAttribute('aria-pressed',String(enabled));$('sound').setAttribute('aria-label',enabled?'Mute optional sound':'Enable optional sound');$('sound').innerHTML=icons[enabled?'sound':'silent'];
+    });
+    function pause(){cancelDrag();stop();if(enabled){enabled=false;audio?.suspend();$('sound').innerHTML=icons.silent;$('sound').setAttribute('aria-pressed','false');$('sound').setAttribute('aria-label','Enable optional sound');}}
+    function resize(){cancelDrag();const r=stage.getBoundingClientRect();w=Math.max(260,r.width);h=Math.max(370,r.height);scene.setAttribute('viewBox',`0 0 ${w} ${h}`);render();}
+    const api={get w(){return w;},get h(){return h;},get reduced(){return reduced;},paint,render,tween,stop,changed,tone,announce,
+      examples(index,count){$('example-progress').innerHTML=Array.from({length:count},(_,i)=>`<span class="example-dot${i===index?' active':''}"></span>`).join('');},
+      start(){stop();new ResizeObserver(resize).observe(stage);resize();MotionBridge.connect({snapshot:spec.snapshot,restore(value){pause();spec.restore(value);render();},pause});}
+    };
+    document.addEventListener('visibilitychange',()=>{if(document.hidden){pause();changed();}});
+    window.addEventListener('keydown',event=>{if(event.key==='Escape'){cancelDrag();stop();spec.escape?.();render();changed();}});
+    matchMedia('(prefers-reduced-motion: reduce)').addEventListener('change',event=>{reduced=event.matches;if(reduced){pause();spec.settle?.();render();changed();}});
+    return api;
+  }
+  return {C,shapes,clamp,smooth,f,svg,shape,create};
+})();
+</script>
+<script>/* A finite collection, a partition, positions, and one inspectable gesture.
+   Positions interpolate; membership changes only at recorded boundaries. */
+const BundleModel=(()=>{
+  const LIMIT=256,clamp=(v,a=0,b=1)=>Math.max(a,Math.min(b,v));
+  const copy=value=>JSON.parse(JSON.stringify(value));
+  const count=seed=>2+seed%2;
+  const canonical=groups=>groups.map(g=>[...g].sort((a,b)=>a-b)).filter(g=>g.length).sort((a,b)=>a[0]-b[0]);
+  function validFrame(frame,n){
+    if(!frame||!Array.isArray(frame.points)||frame.points.length!==n||!Array.isArray(frame.groups))return false;
+    if(!frame.points.every(p=>Array.isArray(p)&&p.length===2&&p.every(v=>typeof v==='number'&&Number.isFinite(v)&&v>=0&&v<=1)))return false;
+    const used=new Set();
+    for(const group of frame.groups){
+      if(!Array.isArray(group)||!group.length)return false;
+      for(const id of group){if(!Number.isInteger(id)||id<0||id>=n||used.has(id))return false;used.add(id);}
+    }
+    return used.size===n;
+  }
+  function create(seed=0){
+    seed=Number.isSafeInteger(seed)&&seed>=0?seed%2:0;
+    const points=seed?[[.28,.3],[.62,.3],[.66,.85]]:[[.33,.43],[.67,.43]];
+    return{version:1,seed,record:[{points,groups:seed?[[0,1],[2]]:[[0,1]]}],cursor:0};
+  }
+  function restore(value){
+    if(value?.version!==1||!Number.isInteger(value.seed)||value.seed<0||value.seed>1||!Array.isArray(value.record)||!value.record.length||value.record.length>LIMIT||!value.record.every(f=>validFrame(f,count(value.seed)))||typeof value.cursor!=='number'||!Number.isFinite(value.cursor)||value.cursor<0||value.cursor>value.record.length-1)return create();
+    return{version:1,seed:value.seed,record:value.record.map(f=>({points:copy(f.points),groups:canonical(f.groups)})),cursor:value.cursor};
+  }
+  function current(s){
+    const i=Math.floor(s.cursor),a=s.record[i],b=s.record[Math.min(i+1,s.record.length-1)],t=s.cursor-i;
+    return{points:a.points.map((p,id)=>p.map((v,k)=>v+(b.points[id][k]-v)*t)),groups:copy(a.groups)};
+  }
+  const groupOf=(frame,id)=>frame.groups.find(g=>g.includes(id));
+  const refinement=(a,b)=>canonical(a.flatMap(g=>b.map(h=>g.filter(id=>h.includes(id)))));
+  function regroup(frame,id,target=null){
+    const out=copy(frame),source=groupOf(out,id),destination=target===null?null:groupOf(out,target);
+    if(!source||(target!==null&&!destination)||source===destination)return out;
+    out.groups=out.groups.map(g=>g.filter(x=>x!==id));
+    if(destination)out.groups[frame.groups.findIndex(g=>g.includes(target))].push(id);
+    else out.groups.push([id]);
+    out.groups=canonical(out.groups);return out;
+  }
+  function translate(frame,ids,dx,dy){
+    const out=copy(frame);if(!ids.length||!ids.every(id=>Number.isInteger(id)&&id>=0&&id<frame.points.length)||!Number.isFinite(dx)||!Number.isFinite(dy))return out;
+    dx=clamp(dx,-Math.min(...ids.map(id=>frame.points[id][0])),1-Math.max(...ids.map(id=>frame.points[id][0])));
+    dy=clamp(dy,-Math.min(...ids.map(id=>frame.points[id][1])),1-Math.max(...ids.map(id=>frame.points[id][1])));
+    for(const id of new Set(ids)){out.points[id]=[clamp(frame.points[id][0]+dx),clamp(frame.points[id][1]+dy)];}
+    return out;
+  }
+  const same=(a,b)=>JSON.stringify(a)===JSON.stringify(b);
+  function begin(s){return{version:1,seed:s.seed,record:[current(s)],cursor:0};}
+  function reserve(s,amount=1){
+    while(s.record.length+amount>LIMIT){
+      const last=s.record.length-1;s.record=s.record.filter((_,i)=>i===0||i===last||i%2===1);s.cursor=s.record.length-1;
+    }
+  }
+  function append(s,frame){
+    if(!validFrame(frame,count(s.seed)))return false;
+    const clean={points:copy(frame.points),groups:canonical(frame.groups)};
+    if(same(s.record.at(-1),clean))return false;
+    // Keep both endpoints when thinning an unusually long gesture. Ordinary
+    // gestures retain every sample; the record stores geometry, not elapsed time.
+    reserve(s);
+    s.record.push(clean);s.cursor=s.record.length-1;return true;
+  }
+  function animate(s,to,steps=20){
+    const result=begin(s),from=result.record[0],between=refinement(from.groups,to.groups);
+    for(let i=1;i<=steps;i++)append(result,{points:i===steps?copy(to.points):from.points.map((p,id)=>p.map((v,k)=>v+(to.points[id][k]-v)*i/steps)),groups:i===steps?to.groups:between});
+    result.cursor=0;return result;
+  }
+  const seek=(s,p)=>{s.cursor=clamp(Number.isFinite(p)?p:0)*(s.record.length-1);};
+  const progress=s=>s.record.length>1?s.cursor/(s.record.length-1):0;
+  return{LIMIT,copy,canonical,count,validFrame,create,restore,current,groupOf,refinement,regroup,translate,same,begin,reserve,append,animate,seek,progress};
+})();
+if(typeof module!=='undefined')module.exports=BundleModel;
+</script>
+<script>/* Renderer-independent board geometry. The normalized board reserves room
+   for 48-pixel controls even at the smallest supported stage. */
+const BundleGeometry=(()=>{
+  const PAD=.18,GAP=.045,STEP=.34,clamp=(x,a=0,b=1)=>Math.max(a,Math.min(b,x));
+  function board(w,h){const width=Math.min(400,w-80),height=Math.min(350,h-128);return{x:(w-width)/2,y:(h-height)/2,w:width,h:height};}
+  const pixel=(p,b)=>({x:b.x+p[0]*b.w,y:b.y+p[1]*b.h});
+  const point=(p,b)=>[clamp((p.x-b.x)/b.w),clamp((p.y-b.y)/b.h)];
+  function bounds(frame,group,pad=PAD){
+    const xs=group.map(id=>frame.points[id][0]),ys=group.map(id=>frame.points[id][1]);
+    return{l:Math.min(...xs)-pad,r:Math.max(...xs)+pad,t:Math.min(...ys)-pad,b:Math.max(...ys)+pad};
+  }
+  function capsule(frame,group,b){
+    const r=bounds(frame,group,0),px=Math.min(38,b.w*PAD),py=Math.min(42,b.h*PAD);
+    return{x:b.x+r.l*b.w-px,y:b.y+r.t*b.h-py,w:(r.r-r.l)*b.w+2*px,h:(r.b-r.t)*b.h+2*py};
+  }
+  const overlaps=(a,b,gap=GAP)=>a.l<b.r+gap&&a.r>b.l-gap&&a.t<b.b+gap&&a.b>b.t-gap;
+  function separated(frame){
+    return frame.groups.every((g,i)=>frame.groups.slice(i+1).every(h=>!overlaps(bounds(frame,g),bounds(frame,h))));
+  }
+  function shift(frame,group,dx,dy){
+    const xs=group.map(id=>frame.points[id][0]),ys=group.map(id=>frame.points[id][1]);
+    dx=clamp(dx,-Math.min(...xs),1-Math.max(...xs));dy=clamp(dy,-Math.min(...ys),1-Math.max(...ys));
+    const a=bounds(frame,group);let limit=1;
+    for(const other of frame.groups){
+      if(other.some(id=>group.includes(id)))continue;
+      const b=bounds(frame,other);
+      // Inspection can stop while a loose object is approaching a group.
+      // Existing overlap must not trap a newly grabbed unit at that point.
+      if(overlaps(a,b))continue;
+      const interval=(lo,hi,low,high,v)=>{
+        if(Math.abs(v)<1e-12)return hi>low-GAP&&lo<high+GAP?[-Infinity,Infinity]:[Infinity,-Infinity];
+        const p=(low-GAP-hi)/v,q=(high+GAP-lo)/v;return[Math.min(p,q),Math.max(p,q)];
+      };
+      const x=interval(a.l,a.r,b.l,b.r,dx),y=interval(a.t,a.b,b.t,b.b,dy);
+      const enter=Math.max(x[0],y[0],0),leave=Math.min(x[1],y[1],1);
+      if(enter<leave&&leave>0)limit=Math.min(limit,Math.max(0,enter-1e-8));
+    }
+    return[dx*limit,dy*limit];
+  }
+  function nearestPlacement(frame,group,wanted){
+    const half=STEP*(group.length-1)/2;
+    const others=frame.groups.filter(g=>!g.some(id=>group.includes(id)));
+    const candidates=[[clamp(wanted[0],half,1-half),clamp(wanted[1])]];
+    for(let iy=0;iy<=25;iy++)for(let ix=0;ix<=25;ix++)if(ix/25>=half&&ix/25<=1-half)candidates.push([ix/25,iy/25]);
+    let best=null,distance=Infinity;
+    for(const c of candidates){
+      const r={l:c[0]-half-PAD,r:c[0]+half+PAD,t:c[1]-PAD,b:c[1]+PAD};
+      if(others.some(g=>overlaps(r,bounds(frame,g))))continue;
+      const d=(c[0]-wanted[0])**2+(c[1]-wanted[1])**2;
+      if(d<distance){distance=d;best=c;}
+    }
+    if(!best)return null;
+    const points=frame.points.map(p=>[...p]);
+    [...group].sort((a,b)=>a-b).forEach((id,i)=>{points[id]=[best[0]+STEP*(i-(group.length-1)/2),best[1]];});
+    return{points,groups:frame.groups.map(g=>[...g])};
+  }
+  function target(frame,id,p,b){
+    let found=null,distance=Infinity;
+    for(const group of frame.groups){
+      if(group.includes(id))continue;
+      const r=capsule(frame,group,b),q=pixel(p,b),extra=group.length===1?8:12;
+      if(q.x<r.x-extra||q.x>r.x+r.w+extra||q.y<r.y-extra||q.y>r.y+r.h+extra)continue;
+      const d=(q.x-r.x-r.w/2)**2+(q.y-r.y-r.h/2)**2;
+      if(d<distance){distance=d;found=group[0];}
+    }
+    return found;
+  }
+  return{PAD,GAP,STEP,board,pixel,point,bounds,capsule,overlaps,separated,shift,nearestPlacement,target};
+})();
+if(typeof module!=='undefined')module.exports=BundleGeometry;
+</script>
+<script>(() => {
+  const M=BundleModel,G=BundleGeometry,K=MotionKit,$=id=>document.getElementById(id);
+  const names=['circle','square','triangle'],colors=[K.C[0],K.C[1],K.C[2]];
+  const glyph='<svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><rect x="4" y="12" width="40" height="25" rx="12.5" stroke="#83d6d1" stroke-width="1.2"/><path d="M20 11h8" stroke="#eedbb6" stroke-width="2" stroke-linecap="round"/><circle cx="16" cy="24.5" r="4" fill="#eedbb6"/><rect x="28" y="20.5" width="8" height="8" rx="1.4" fill="#83d6d1"/></svg>';
+  let s=M.create(),selected=null,floating=null,hover=null,release=null,board=null;
+  const groupKey=g=>'unit-'+g.join('-');
+  const groupName=g=>g.map(id=>names[id]).join(' and ');
+  function focusToken(id){[...$('objects').children].find(b=>b.dataset.key===`token-${id}`)?.focus({preventScroll:true});}
+  function describe(){
+    const p=M.current(s),grouping=p.groups.map(g=>g.length>1?`${groupName(g)} together`:`${names[g[0]]} alone`).join('; ');
+    return `${p.points.length} objects, each present once: ${grouping}. ${s.record.length>1?'The timeline retraces the latest change; returning uses its recorded history.':'Drag the capsule boundary to move its contents together. Select a shape to unpack it, or drag it out.'}`;
+  }
+  function rect(r,stroke,opacity=1,dashed=false){return `<rect x="${K.f(r.x)}" y="${K.f(r.y)}" width="${K.f(r.w)}" height="${K.f(r.h)}" rx="${K.f(Math.min(r.h/2,42))}" fill="${dashed?'none':'#83d6d1'}" fill-opacity=".025" stroke="${stroke}" stroke-opacity="${opacity}" stroke-width="${dashed?1:1.2}" ${dashed?'stroke-dasharray="3 7"':''}/>`;}
+  function render(v){
+    board=G.board(v.w,v.h);const p=M.current(s),items=[],units=[];let body='';
+    const start=s.record[0];
+    if(s.record.length>1&&s.cursor>0){
+      for(const group of start.groups)if(group.length>1)body+=rect(G.capsule(start,group,board),'#b7a4e8',.16,true);
+      start.points.forEach((point,id)=>{const a=G.pixel(point,board),b=G.pixel(p.points[id],board);if(Math.hypot(a.x-b.x,a.y-b.y)>10)body+=K.shape(names[id],a.x,a.y,8,colors[id],false,.18);});
+    }
+    for(const group of p.groups){
+      const target=hover!==null&&group.includes(hover),possible=selected!==null&&!group.includes(selected),r=G.capsule(p,group,board);
+      if(group.length>1){
+        body+=rect(r,target?'#eedbb6':'#83d6d1',target?.9:possible?.68:.5);
+        const cx=r.x+r.w/2,cy=r.y;
+        body+=`<path d="M${K.f(cx-11)} ${K.f(cy)}h22" stroke="#eedbb6" stroke-opacity=".8" stroke-width="2.8" stroke-linecap="round"/><path d="M${K.f(cx-6)} ${K.f(cy-5)}h12" stroke="#eedbb6" stroke-opacity=".28" stroke-width="1" stroke-linecap="round"/>`;
+        const key=groupKey(group);items.push({key,x:cx,y:r.y+r.h/2,kind:'unit',art:'',label:possible?`Place the selected ${names[selected]} with ${groupName(group)}`:`Move ${groupName(group)} together. Drag the boundary, or use arrow keys. Tap for one short movement.`});units.push({key,r});
+      }else if(target||possible){
+        const q=G.pixel(p.points[group[0]],board);
+        body+=`<circle cx="${K.f(q.x)}" cy="${K.f(q.y)}" r="30" fill="none" stroke="${target?'#eedbb6':'#83d6d1'}" stroke-opacity="${target?.7:.35}" stroke-width="1.2"/>`;
+      }
+    }
+    for(let id=0;id<p.points.length;id++){
+      const q=G.pixel(p.points[id],board),group=M.groupOf(p,id),chosen=selected===id||floating===id;
+      items.push({key:`token-${id}`,x:q.x,y:q.y,kind:'bundle-token',shape:names[id],color:colors[id],selected:chosen,label:selected!==null&&selected!==id&&!group.includes(selected)?`Place the selected ${names[selected]} with this ${names[id]}`:`${names[id]}, ${group.length>1?'inside the bundle':'alone'}. Drag to move alone. Select, then choose another shape or bundle to join.`});
+    }
+    release=null;
+    if(selected!==null&&M.groupOf(p,selected).length>1){
+      const loose=M.regroup(p,selected),position=p.points[selected];
+      release=G.nearestPlacement(loose,[selected],[position[0],Math.min(1,position[1]+.53)]);
+      if(release){const q=G.pixel(release.points[selected],board);items.push({key:'release',x:q.x,y:q.y,kind:'release',label:`Unpack the ${names[selected]} into this open place`,art:K.svg(`<circle cx="24" cy="24" r="19" fill="none" stroke="#83d6d1" stroke-width="1.1"/>${K.shape(names[selected],24,24,6,colors[selected],false,.55)}`)});}
+    }
+    v.paint(body,items);
+    for(const {key,r} of units){const b=[...$('objects').children].find(b=>b.dataset.key===key);b.style.width=`${r.w}px`;b.style.height=`${r.h}px`;}
+    const hasRecord=s.record.length>1;$('timeline').disabled=!hasRecord;$('rewind').disabled=!hasRecord;
+    $('rewind').setAttribute('aria-label','Retrace the latest change to its beginning');
+    v.examples(s.seed,2);
+  }
+  function appendMotion(to,steps=14){
+    const from=M.current(s),between=M.refinement(from.groups,to.groups);M.reserve(s,steps);const start=s.cursor;
+    for(let i=1;i<=steps;i++)M.append(s,{points:i===steps?M.copy(to.points):from.points.map((p,id)=>p.map((x,k)=>x+(to.points[id][k]-x)*i/steps)),groups:i===steps?to.groups:between});
+    const end=s.record.length-1;s.cursor=Math.min(start,end);
+    view.tween(s.cursor,end,value=>{s.cursor=value;},260,()=>view.tone(to.groups.length));
+  }
+  function perform(to,focus=null){
+    if(!to)return;
+    selected=null;floating=null;hover=null;
+    s=M.animate(s,to);view.tween(0,s.record.length-1,value=>{s.cursor=value;},620,()=>{view.tone(to.groups.length);if(focus!==null)focusToken(focus);});
+  }
+  function join(id,target){
+    const before=M.current(s),destination=M.groupOf(before,target);
+    if(!destination||destination.includes(id))return;
+    const center=[0,1].map(k=>destination.reduce((sum,x)=>sum+before.points[x][k],0)/destination.length);
+    const grouped=M.regroup(before,id,target),to=G.nearestPlacement(grouped,M.groupOf(grouped,id),center);
+    perform(to,id);
+  }
+  function moveGroup(group,dx,dy,demonstrate=false){
+    const before=M.current(s),delta=G.shift(before,group,dx,dy),to=M.translate(before,group,...delta);
+    if(M.same(before,to))return;
+    if(demonstrate)perform(to);else{s=M.begin(s);M.append(s,to);}
+  }
+  function demonstrate(group){
+    const before=M.current(s),options=[[.2,-.18],[-.2,-.18],[.2,.18],[-.2,.18]];
+    let best=[0,0],length=0;
+    for(const delta of options){const safe=G.shift(before,group,...delta),n=Math.hypot(...safe);if(n>length){best=safe;length=n;}}
+    moveGroup(group,...best,true);
+  }
+  function dropTarget(frame,id,p,origin){
+    const target=G.target(frame,id,p,board);if(target!==null)return target;
+    const group=M.groupOf(origin,id);if(group.length<2)return null;
+    const r=G.capsule(origin,group,board),q=G.pixel(p,board);
+    return q.x>=r.x&&q.x<=r.x+r.w&&q.y>=r.y&&q.y<=r.y+r.h?group.find(x=>x!==id):null;
+  }
+  const view=K.create({
+    title:'Bundle',description:'Objects keep their identities when grouped, moved together, unpacked, and regrouped. Drag the capsule boundary to carry its contents. Drag one shape out, or select it and choose the open ring. Select a shape and then another shape or bundle to join them. Arrow keys move the focused object or bundle. The timeline replays the most recent change; it is a history, not a mathematical inverse.',
+    glyph,render,describe,progress:()=>M.progress(s),snapshot:()=>M.copy(s),restore(value){s=M.restore(value);selected=null;floating=null;hover=null;},
+    scrub(p){selected=null;floating=null;hover=null;M.seek(s,p);},
+    play(){selected=null;if(s.record.length===1){demonstrate(M.current(s).groups[0]);return;}if(s.cursor>=s.record.length-1)s.cursor=0;view.tween(s.cursor,s.record.length-1,value=>{s.cursor=value;},900);},
+    rewind(){selected=null;view.tween(s.cursor,0,value=>{s.cursor=value;},650);},
+    example(){s=M.create(s.seed+1);selected=null;floating=null;hover=null;},
+    activate(key){
+      if(key==='release'){const id=selected;if(id!==null)perform(release,id);return;}
+      const p=M.current(s);
+      if(key.startsWith('token-')){const id=Number(key.split('-')[1]);if(selected!==null&&selected!==id&&!M.groupOf(p,id).includes(selected))join(selected,id);else selected=selected===id?null:id;}
+      else if(key.startsWith('unit-')){const group=key.slice(5).split('-').map(Number);if(selected!==null&&!group.includes(selected))join(selected,group[0]);else{selected=null;demonstrate(group);}}
+    },
+    nudge(key,dir,keyName){
+      const dx=keyName==='ArrowRight'?.06:keyName==='ArrowLeft'?-.06:0,dy=keyName==='ArrowDown'?.06:keyName==='ArrowUp'?-.06:0;
+      if(key.startsWith('unit-'))moveGroup(key.slice(5).split('-').map(Number),dx,dy);
+      else if(key.startsWith('token-')){
+        const id=Number(key.split('-')[1]),before=M.current(s),loose=M.regroup(before,id),p=before.points[id];
+        const to=G.nearestPlacement(loose,[id],[p[0]+dx,p[1]+dy]);
+        if(to){selected=null;s=M.begin(s);M.append(s,to);}
+      }
+    },
+    down(key,p){
+      if(!key.startsWith('token-')&&!key.startsWith('unit-'))return null;
+      const base=M.current(s),isToken=key.startsWith('token-'),id=isToken?Number(key.split('-')[1]):null;
+      const raw=[(p.x-board.x)/board.w,(p.y-board.y)/board.h];
+      return{original:M.copy(s),oldSelected:selected,base,id,members:isToken?[id]:key.slice(5).split('-').map(Number),last:raw,offset:null};
+    },
+    move(d,p){
+      const raw=[(p.x-board.x)/board.w,(p.y-board.y)/board.h];
+      if(!d.started){d.started=true;s=M.begin(s);selected=null;d.offset=d.id===null?null:d.last.map((x,k)=>x-d.base.points[d.id][k]);}
+      if(d.id===null){const before=M.current(s),delta=G.shift(before,d.members,raw[0]-d.last[0],raw[1]-d.last[1]);M.append(s,M.translate(before,d.members,...delta));}
+      else{const next=M.regroup(d.base,d.id);next.points[d.id]=raw.map((x,k)=>K.clamp(x-d.offset[k]));M.append(s,next);floating=d.id;hover=dropTarget(next,d.id,next.points[d.id],d.base);}
+      d.last=raw;
+    },
+    up(d){
+      if(d.id!==null){
+        const before=M.current(s),id=d.id,target=dropTarget(before,id,before.points[id],d.base);let to;
+        if(target!==null){const original=M.groupOf(d.base,id),returning=original.includes(target),destination=returning?original:M.groupOf(before,target),positions=returning?d.base:before,center=[0,1].map(k=>destination.reduce((sum,x)=>sum+positions.points[x][k],0)/destination.length),grouped=M.regroup(before,id,target);to=G.nearestPlacement(grouped,M.groupOf(grouped,id),center);}
+        else to=G.nearestPlacement(before,[id],before.points[id]);
+        floating=null;hover=null;if(to)appendMotion(to);else s=d.original;
+      }else if(s.record.length===1)s=d.original;
+    },
+    cancel(d){s=d.original;selected=d.oldSelected;floating=null;hover=null;},
+    escape(){selected=null;floating=null;hover=null;}
+  });
+  view.start();
+})();
+</script>
+</body></html>

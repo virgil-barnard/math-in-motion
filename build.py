@@ -114,8 +114,8 @@ def build():
     write('foundations.html', foundation)
     (OUT / '.nojekyll').write_text('')
     (ROOT / 'evidence').mkdir(exist_ok=True)
-    (ROOT / 'evidence/build-manifest.json').write_text(json.dumps({'version': '0.4.1', 'lessons': len(catalog), 'files': files}, indent=2) + '\n')
-    print(json.dumps({'version': '0.4.1', 'lessons': len(catalog), 'files': files}, indent=2))
+    (ROOT / 'evidence/build-manifest.json').write_text(json.dumps({'version': '0.5.0', 'lessons': len(catalog), 'files': files}, indent=2) + '\n')
+    print(json.dumps({'version': '0.5.0', 'lessons': len(catalog), 'files': files}, indent=2))
 
 
 if __name__ == '__main__':

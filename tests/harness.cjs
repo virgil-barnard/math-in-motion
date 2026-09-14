@@ -3,7 +3,7 @@ const fs=require('node:fs'),path=require('node:path'),vm=require('node:vm'),asse
 const root=path.resolve(__dirname,'..');
 function boot(id,{w=736,h=500,reduced=false,embedded=false,hash=''}={}){
   const html=fs.readFileSync(path.join(root,'docs',`${id}.html`),'utf8');
-  let now=1000,serial=0;const frames=new Map(),timers=new Map(),messages=[],nodes={};
+  let now=1000,serial=0;const frames=new Map(),timers=new Map(),messages=[],nodes={},observers=[];
   class Element{
     constructor(tag='div'){this.tagName=tag.toUpperCase();this.attrs={};this.dataset={};this.children=[];this.events={};this.style={setProperty(k,v){this[k]=v;}};this.innerHTML='';this.value='0';this.hidden=false;this.className='';this.contentWindow={messages:[],postMessage(data){this.messages.push(data);}};const self=this;this.classList={add(c){self.className+=' '+c;},remove(c){self.className=self.className.split(' ').filter(x=>x!==c).join(' ');},toggle(c,value){if(value)this.add(c);else this.remove(c);}};}
     addEventListener(k,f){(this.events[k]??=[]).push(f);}
@@ -25,7 +25,7 @@ function boot(id,{w=736,h=500,reduced=false,embedded=false,hash=''}={}){
   window.scrollY=0;window.scrollTo=(_,y)=>{window.scrollY=y;};
   const media=new Element();media.matches=reduced;
   const location={hash};const history={pushState(_,__,h){location.hash=h;},replaceState(_,__,h){location.hash=h;}};
-  const context={document,window,location,history,localStorage:{getItem(){return null;},setItem(){}},performance:{now:()=>now},matchMedia:()=>media,ResizeObserver:class{observe(){}},requestAnimationFrame(fn){frames.set(++serial,fn);return serial;},cancelAnimationFrame(id){frames.delete(id);},setTimeout(fn,ms){timers.set(++serial,{fn,time:now+ms});return serial;},clearTimeout(id){timers.delete(id);},console};
+  const context={document,window,location,history,localStorage:{getItem(){return null;},setItem(){}},performance:{now:()=>now},matchMedia:()=>media,ResizeObserver:class{constructor(fn){this.fn=fn;}observe(){observers.push(this.fn);}},requestAnimationFrame(fn){frames.set(++serial,fn);return serial;},cancelAnimationFrame(id){frames.delete(id);},setTimeout(fn,ms){timers.set(++serial,{fn,time:now+ms});return serial;},clearTimeout(id){timers.delete(id);},console};
   vm.createContext(context);
   const scripts=[...html.matchAll(/<script>([\s\S]*?)<\/script>/g)].map(m=>m[1]);assert(scripts.length>=2);scripts.forEach(s=>vm.runInContext(s,context));
   function advance(ms){for(let t=0;t<ms;t+=16){now+=16;const queue=[...frames.values()];frames.clear();queue.forEach(fn=>fn(now));for(const [id,timer] of [...timers])if(timer.time<=now){timers.delete(id);timer.fn();}}}
@@ -49,6 +49,7 @@ function boot(id,{w=736,h=500,reduced=false,embedded=false,hash=''}={}){
   }
   const snapshot=()=>{assert(embedded,'snapshot helper needs embedded:true');window.emit('message',{source:window.parent,data:{channel:'mathematics-in-motion/v1',type:'pause',request:901}});return JSON.parse(JSON.stringify(messages.at(-1).state));};
   const restore=state=>{assert(embedded,'restore helper needs embedded:true');window.emit('message',{source:window.parent,data:{channel:'mathematics-in-motion/v1',type:'restore',state}});};
-  return{nodes,window,document,context,messages,frames,timers,advance,click,clickObject,scrub,object,drag,exportScene,media,location,snapshot,restore};
+  const resize=(width,height=h)=>{w=width;h=height;for(const callback of observers)callback();};
+  return{nodes,window,document,context,messages,frames,timers,advance,click,clickObject,scrub,object,drag,exportScene,media,location,snapshot,restore,resize};
 }
 module.exports={boot,root};

@@ -1,8 +1,8 @@
 # A growing language of mechanisms
 
-Implemented in version 0.4.1: ten independent lesson documents, a generated
+Implemented in version 0.5.0: eleven independent lesson documents, a generated
 constellation menu, a local authoring contract, and a single-file collection
-alongside the lightweight Pages edition. Branch extends the local lesson boundary.
+alongside the lightweight Pages edition. Branch and Bundle extend the local lesson boundary.
 The catalog now separates a small opening path from the complete constellation.
 
 ## The curriculum is a graph

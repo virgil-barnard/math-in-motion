@@ -1,0 +1,26 @@
+{
+  "contract": 1,
+  "status": "ready",
+  "id": "bundle",
+  "title": "Bundle",
+  "summary": "Move several shapes as one unit; unpack and regroup the same objects.",
+  "order": 1.25,
+  "builds_on": [
+    "correspondence"
+  ],
+  "related": [
+    "membership",
+    "composition",
+    "same"
+  ],
+  "contexts": [
+    "grouping",
+    "units",
+    "invariance"
+  ],
+  "entry": "entry.html",
+  "glyph": "glyph.svg",
+  "interaction_checks": [
+    "interaction.test.cjs"
+  ]
+}
