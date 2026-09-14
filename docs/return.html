@@ -1,0 +1,250 @@
+<!doctype html>
+<html lang="en" data-lesson="return">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"><meta name="theme-color" content="#0a1420"><title>Return · Mathematics in Motion</title><style>:root{color-scheme:dark;--bg:#0a1420;--ink:#eedbb6;--aqua:#83d6d1;--violet:#b7a4e8;--line:#648896;--soft:#aec4cb}
+*{box-sizing:border-box}html,body{margin:0;min-width:280px;min-height:100%;background:var(--bg)}body{color:var(--ink);font-family:system-ui,sans-serif;background:radial-gradient(ellipse at 50% 35%,#152c3b, #0a1420 70%);-webkit-tap-highlight-color:transparent}button,input{font:inherit}button{border:0;background:none;color:inherit;cursor:pointer;padding:0;touch-action:manipulation;-webkit-user-select:none;user-select:none}button:focus-visible,input:focus-visible{outline:2px solid #f5e5bb;outline-offset:4px}button svg{width:100%;height:100%;pointer-events:none}svg{display:block}button:active{filter:brightness(1.2)}[hidden]{display:none!important}
+.sr-only{position:absolute!important;width:1px!important;height:1px!important;padding:0!important;margin:-1px!important;overflow:hidden!important;clip-path:inset(50%)!important;white-space:nowrap!important;border:0!important}
+#lesson-app{width:min(100%,1000px);height:100vh;height:100svh;min-height:570px;max-height:1000px;margin:auto;display:grid;grid-template-rows:64px minmax(370px,1fr) 132px;padding:env(safe-area-inset-top) 18px env(safe-area-inset-bottom)}
+.lesson-header{display:flex;align-items:center;justify-content:center;position:relative}.lesson-glyph{width:34px;height:34px;opacity:.75}.lesson-header #sound{position:absolute;right:0;width:46px;height:46px;padding:13px;opacity:.6;border-radius:50%}.lesson-header #sound[aria-pressed=true]{opacity:1}
+#stage{position:relative;min-height:370px;isolation:isolate}#scene,#objects{position:absolute;inset:0;width:100%;height:100%}#scene{pointer-events:none;overflow:visible}#objects{pointer-events:none}.piece{position:absolute;transform:translate(-50%,-50%);width:48px;height:48px;border-radius:50%;pointer-events:auto;touch-action:none;display:grid;place-items:center;z-index:2;cursor:grab}.piece svg{width:44px;height:44px;filter:drop-shadow(0 0 9px #eedbb61a)}.piece:hover{background:#83d6d10b}.piece:active,.piece.dragging{cursor:grabbing;background:#eedbb610}.piece.choice{width:64px;height:56px;border-radius:14px;cursor:pointer;background:#83d6d108;border:1px solid #64889655}.piece.choice[aria-pressed=true]{border-color:#eedbb6aa;background:#eedbb60d}.piece.choice svg{width:48px;height:42px;filter:none}.piece.gate-target{width:78%;height:70px;border-radius:15px;background:transparent;z-index:1}
+.lesson-footer{display:flex;flex-direction:column;justify-content:center;gap:12px;padding:0 max(8px,5%)}.transport{display:flex;align-items:center;gap:18px}.round-control{width:48px;height:48px;flex:none;border:1px solid #afc3ca40;border-radius:50%;padding:15px;background:#83d6d108}.quiet-control{width:46px;height:46px;flex:none;border-radius:50%;padding:13px;opacity:.7}.quiet-control:hover{background:#83d6d10d;opacity:1}.tools{display:flex;align-items:center;justify-content:center;gap:22px}.example-progress{display:flex;gap:10px;min-width:80px;justify-content:center;align-items:center}.example-dot{width:4px;height:4px;border-radius:50%;background:#64889666}.example-dot.active{background:var(--ink);box-shadow:0 0 0 3px #eedbb619}
+input[type=range]{width:100%;min-width:0;height:48px;margin:0;background:transparent;accent-color:var(--aqua);cursor:ew-resize}
+.embedded #lesson-app{grid-template-rows:42px minmax(370px,1fr) 128px;min-height:540px}.embedded .lesson-glyph{opacity:.35;width:26px;height:26px}
+@media(max-width:560px){#lesson-app{padding-left:10px;padding-right:10px}.lesson-footer{padding:0 12px}.transport{gap:12px}}
+@media(prefers-reduced-motion:reduce){*,*:before,*:after{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
+</style></head>
+<body>
+<main id="lesson-app">
+  <h1 id="lesson-title" class="sr-only"></h1>
+  <header class="lesson-header"><div id="lesson-glyph" class="lesson-glyph" aria-hidden="true"></div><button id="sound" type="button" aria-label="Enable optional sound" aria-pressed="false"></button></header>
+  <section id="stage" aria-labelledby="lesson-title" aria-describedby="lesson-description"><svg id="scene" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"></svg><div id="objects"></div></section>
+  <footer class="lesson-footer">
+    <div class="transport"><button id="play" class="round-control" type="button" aria-label="Play the transformation"></button><label for="timeline" class="sr-only">Inspect the transformation</label><input id="timeline" type="range" min="0" max="1000" step="1" value="0"><button id="rewind" class="quiet-control" type="button" aria-label="Return to the beginning"></button></div>
+    <div class="tools"><div id="example-progress" class="example-progress" aria-hidden="true"></div><button id="example" class="quiet-control" type="button" aria-label="Explore another example"></button></div>
+  </footer>
+  <p id="lesson-description" class="sr-only"></p><p id="status" class="sr-only" aria-live="polite" aria-atomic="true"></p>
+</main>
+
+<script>/* Portable document contract v1. Parent identity is checked; no network access. */
+const MotionBridge = (() => {
+  const channel = 'mathematics-in-motion/v1';
+  let hooks = null;
+  const lesson = document.documentElement.dataset.lesson;
+  const embedded = window.parent !== window;
+  if (embedded) document.documentElement.classList.add('embedded');
+  function send(type, extra = {}) {
+    if (embedded) window.parent.postMessage({channel, lesson, type, ...extra}, '*');
+  }
+  function changed() { if (hooks) send('state', {state: hooks.snapshot()}); }
+  window.addEventListener('message', event => {
+    if (!embedded || event.source !== window.parent || event.data?.channel !== channel || !hooks) return;
+    const data = event.data;
+    if (data.type === 'restore') {
+      if (data.state) hooks.restore(data.state);
+      changed();
+    } else if (data.type === 'pause') {
+      hooks.pause();
+      send('paused', {request: data.request, state: hooks.snapshot()});
+    }
+  });
+  return {
+    connect(value) { hooks = value; send('ready'); },
+    changed,
+    explored() { send('explored'); }
+  };
+})();
+</script>
+<script>/* Small optional author kit. Lessons own models, state, geometry, and gestures. */
+const MotionKit = (() => {
+  const C = ['#eedbb6','#83d6d1','#b7a4e8','#d8a78b'];
+  const shapes = ['circle','square','triangle','diamond'];
+  const clamp = (x,a=0,b=1) => Math.max(a,Math.min(b,x));
+  const smooth = x => x*x*(3-2*x);
+  const f = x => Number(x).toFixed(3);
+  const svg = body => `<svg viewBox="0 0 48 48" aria-hidden="true" xmlns="http://www.w3.org/2000/svg">${body}</svg>`;
+  function shape(kind,x,y,r,color=C[0],filled=true,opacity=1) {
+    const a=`fill="${filled?color:'none'}" stroke="${color}" stroke-width="${filled?.7:1.2}" opacity="${opacity}" stroke-linejoin="round"`;
+    if(kind==='circle')return `<circle cx="${f(x)}" cy="${f(y)}" r="${r}" ${a}/>`;
+    if(kind==='square')return `<rect x="${f(x-r)}" y="${f(y-r)}" width="${2*r}" height="${2*r}" rx="2.5" ${a}/>`;
+    if(kind==='triangle')return `<path d="M${f(x)} ${f(y-r*1.15)}L${f(x+r)} ${f(y+r*.8)}L${f(x-r)} ${f(y+r*.8)}Z" ${a}/>`;
+    return `<path d="M${f(x)} ${f(y-r*1.2)}L${f(x+r)} ${f(y)}L${f(x)} ${f(y+r*1.2)}L${f(x-r)} ${f(y)}Z" ${a}/>`;
+  }
+  const icons={
+    play:svg('<path d="m18 10 20 14-20 14Z" fill="currentColor"/>'),
+    pause:svg('<path d="M18 12v24M30 12v24" stroke="currentColor" stroke-width="4" stroke-linecap="round"/>'),
+    rewind:svg('<path d="M12 12a16 16 0 1 1-3 20M12 3v11H2" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>'),
+    example:svg('<rect x="5" y="5" width="27" height="27" rx="8" fill="none" stroke="currentColor" opacity=".45"/><rect x="16" y="16" width="27" height="27" rx="8" fill="#102230" stroke="currentColor"/><circle cx="24" cy="24" r="2" fill="currentColor"/><circle cx="35" cy="35" r="2" fill="currentColor"/>'),
+    silent:svg('<path d="M7 18h7l10-8v28l-10-8H7ZM33 18l10 12M43 18 33 30" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>'),
+    sound:svg('<path d="M7 18h7l10-8v28l-10-8H7ZM32 17q7 7 0 14M38 10q13 14 0 28" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>')
+  };
+  function create(spec) {
+    const $=id=>document.getElementById(id);
+    const stage=$('stage'),scene=$('scene'),objects=$('objects'),range=$('timeline'),play=$('play');
+    let w=640,h=500,frame=0,animation=null,drag=null,suppress=null,lastStatus='';
+    let reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
+    let audio=null,enabled=false;
+    const buttons=new Map();
+    $('lesson-title').textContent=spec.title;
+    $('lesson-description').textContent=spec.description;
+    $('lesson-glyph').innerHTML=spec.glyph;
+    $('rewind').innerHTML=icons.rewind;$('example').innerHTML=icons.example;$('sound').innerHTML=icons.silent;
+    function announce(text) {if(text!==lastStatus){$('status').textContent=text;lastStatus=text;}}
+    function stop(){animation=null;cancelAnimationFrame(frame);frame=0;play.innerHTML=icons.play;play.setAttribute('aria-label','Play the transformation');}
+    function paint(body,items=[]) {
+      scene.innerHTML=body;
+      const seen=new Set();
+      for(const item of items){
+        seen.add(item.key);let b=buttons.get(item.key);
+        if(!b){b=document.createElement('button');b.type='button';b.dataset.key=item.key;objects.appendChild(b);buttons.set(item.key,b);}
+        b.className=`piece ${item.kind||'token'}${drag?.key===item.key?' dragging':''}`;
+        b.style.left=`${item.x}px`;b.style.top=`${item.y}px`;
+        b.setAttribute('aria-label',item.label);
+        if(item.selected!==undefined)b.setAttribute('aria-pressed',String(item.selected));
+        const art=item.art??svg(shape(item.shape||'circle',24,24,11,item.color||C[0]));
+        if(b.dataset.art!==art){b.innerHTML=art;b.dataset.art=art;}
+      }
+      for(const [key,b] of buttons)if(!seen.has(key)){b.remove();buttons.delete(key);}
+    }
+    function render(){spec.render(api);range.value=String(clamp(spec.progress())*1000);range.setAttribute('aria-valuetext',spec.describe());}
+    function changed(){announce(spec.describe());MotionBridge.changed();}
+    function tone(index=0){
+      if(!enabled||!audio)return;
+      const time=audio.currentTime,osc=audio.createOscillator(),gain=audio.createGain();
+      osc.frequency.value=[261.63,329.63,392,523.25][Math.abs(index)%4];
+      gain.gain.setValueAtTime(.0001,time);gain.gain.exponentialRampToValueAtTime(.045,time+.015);gain.gain.exponentialRampToValueAtTime(.0001,time+.38);
+      osc.connect(gain);gain.connect(audio.destination);osc.start(time);osc.stop(time+.4);osc.onended=()=>{osc.disconnect();gain.disconnect();};
+    }
+    function tween(from,to,setter,duration=600,after=null){
+      stop();
+      if(reduced||Math.abs(to-from)<1e-8){setter(to);render();after?.();changed();return;}
+      animation={from,to,setter,start:performance.now(),duration,after};
+      play.innerHTML=icons.pause;play.setAttribute('aria-label','Pause the transformation');
+      const tick=now=>{
+        if(!animation)return;const a=animation,t=clamp((now-a.start)/a.duration);
+        a.setter(t===1?a.to:a.from+(a.to-a.from)*smooth(t));render();
+        if(t===1){stop();a.after?.();changed();}else frame=requestAnimationFrame(tick);
+      };frame=requestAnimationFrame(tick);
+    }
+    function cancelDrag(){if(!drag)return;const old=drag;drag=null;spec.cancel?.(old);try{old.button.releasePointerCapture(old.pointer);}catch{}render();}
+    function point(event){const r=stage.getBoundingClientRect();return{x:event.clientX-r.left,y:event.clientY-r.top};}
+    objects.addEventListener('pointerdown',event=>{
+      const button=event.target.closest('button[data-key]');if(!button||drag||event.button!==0)return;
+      stop();suppress=null;const p=point(event),key=button.dataset.key;
+      const detail=spec.down?.(key,p);if(!detail)return;
+      drag={...detail,key,button,pointer:event.pointerId,start:p,moved:false};
+      button.setPointerCapture(event.pointerId);render();
+    });
+    objects.addEventListener('pointermove',event=>{
+      if(!drag||drag.pointer!==event.pointerId)return;const p=point(event);
+      if(!drag.moved&&Math.hypot(p.x-drag.start.x,p.y-drag.start.y)<3)return;
+      drag.moved=true;spec.move?.(drag,p);render();
+    });
+    objects.addEventListener('pointerup',event=>{
+      if(!drag||drag.pointer!==event.pointerId)return;const ended=drag;drag=null;
+      try{ended.button.releasePointerCapture(ended.pointer);}catch{}
+      if(ended.moved){suppress=ended.key;spec.up?.(ended,point(event));render();changed();MotionBridge.explored();}
+    });
+    for(const name of ['pointercancel','lostpointercapture'])objects.addEventListener(name,event=>{if(drag?.pointer===event.pointerId){cancelDrag();changed();}});
+    objects.addEventListener('click',event=>{
+      const button=event.target.closest('button[data-key]');if(!button)return;
+      if(event.detail>0&&suppress===button.dataset.key){suppress=null;return;}
+      suppress=null;stop();spec.activate?.(button.dataset.key);render();changed();MotionBridge.explored();
+    });
+    objects.addEventListener('keydown',event=>{
+      const button=event.target.closest('button[data-key]');if(!button||!['ArrowLeft','ArrowRight','ArrowUp','ArrowDown'].includes(event.key))return;
+      if(spec.nudge){event.preventDefault();cancelDrag();stop();spec.nudge(button.dataset.key,['ArrowRight','ArrowUp'].includes(event.key)?1:-1,event.key);render();changed();}
+    });
+    play.addEventListener('click',()=>{cancelDrag();if(animation){stop();changed();return;}spec.play();render();MotionBridge.explored();});
+    $('rewind').addEventListener('click',()=>{cancelDrag();stop();spec.rewind();render();changed();});
+    $('example').addEventListener('click',()=>{cancelDrag();stop();spec.example();render();changed();tone(2);});
+    range.addEventListener('input',()=>{const p=Number(range.value)/1000;cancelDrag();stop();spec.scrub(p);render();});
+    range.addEventListener('change',()=>{spec.settle?.();render();changed();MotionBridge.explored();});
+    range.addEventListener('keydown',event=>{
+      if(!spec.step||!['ArrowLeft','ArrowRight','ArrowUp','ArrowDown'].includes(event.key))return;
+      event.preventDefault();cancelDrag();stop();spec.step(['ArrowRight','ArrowUp'].includes(event.key)?1:-1);render();changed();
+    });
+    $('sound').addEventListener('click',async()=>{
+      if(enabled){enabled=false;audio?.suspend();}else{const Audio=window.AudioContext||window.webkitAudioContext;if(!Audio){announce('Optional sound is unavailable.');return;}try{audio||=new Audio();await audio.resume();enabled=true;tone(0);}catch{announce('Optional sound could not start.');return;}}
+      $('sound').setAttribute('aria-pressed',String(enabled));$('sound').setAttribute('aria-label',enabled?'Mute optional sound':'Enable optional sound');$('sound').innerHTML=icons[enabled?'sound':'silent'];
+    });
+    function pause(){cancelDrag();stop();if(enabled){enabled=false;audio?.suspend();$('sound').innerHTML=icons.silent;$('sound').setAttribute('aria-pressed','false');$('sound').setAttribute('aria-label','Enable optional sound');}}
+    function resize(){cancelDrag();const r=stage.getBoundingClientRect();w=Math.max(260,r.width);h=Math.max(370,r.height);scene.setAttribute('viewBox',`0 0 ${w} ${h}`);render();}
+    const api={get w(){return w;},get h(){return h;},get reduced(){return reduced;},paint,render,tween,stop,changed,tone,announce,
+      examples(index,count){$('example-progress').innerHTML=Array.from({length:count},(_,i)=>`<span class="example-dot${i===index?' active':''}"></span>`).join('');},
+      start(){stop();new ResizeObserver(resize).observe(stage);resize();MotionBridge.connect({snapshot:spec.snapshot,restore(value){pause();spec.restore(value);render();},pause});}
+    };
+    document.addEventListener('visibilitychange',()=>{if(document.hidden){pause();changed();}});
+    window.addEventListener('keydown',event=>{if(event.key==='Escape'){cancelDrag();stop();spec.escape?.();render();changed();}});
+    matchMedia('(prefers-reduced-motion: reduce)').addEventListener('change',event=>{reduced=event.matches;if(reduced){pause();spec.settle?.();render();changed();}});
+    return api;
+  }
+  return {C,shapes,clamp,smooth,f,svg,shape,create};
+})();
+</script>
+<script>/* Disjoint cycles. Real phase is animation time; only integer moves are permutations. */
+const ReturnModel = (() => {
+  const cases=[[2],[3],[2,3],[2,4],[3,4]];
+  const gcd=(a,b)=>b?gcd(b,a%b):a;
+  const lcm=(a,b)=>a/gcd(a,b)*b;
+  const period=counts=>counts.reduce(lcm,1);
+  const mod=(x,n)=>(x%n+n)%n;
+  const atHome=(phase,n)=>Math.abs(phase-Math.round(phase))<1e-7&&mod(Math.round(phase),n)===0;
+  const slot=(identity,moves,n)=>mod(identity+moves,n);
+  const angularDelta=(before,after)=>Math.atan2(Math.sin(after-before),Math.cos(after-before));
+  const create=(seed=0)=>({version:1,seed,phase:0});
+  const counts=s=>cases[mod(s.seed,cases.length)];
+  function progress(s){const n=period(counts(s)),p=mod(s.phase,n);return Math.abs(p)<1e-8&&Math.abs(s.phase)>1e-8?1:p/n;}
+  function restore(value){
+    if(value?.version!==1||!Number.isInteger(value.seed)||value.seed<0||!Number.isFinite(value.phase)||Math.abs(value.phase)>1e6)return create();
+    return{version:1,seed:value.seed,phase:value.phase};
+  }
+  return{cases,gcd,lcm,period,mod,atHome,slot,angularDelta,create,counts,progress,restore};
+})();
+if(typeof module!=='undefined')module.exports=ReturnModel;
+</script>
+<script>(() => {
+  const M=ReturnModel,K=MotionKit,{C,shape,svg,f}=K,tau=2*Math.PI;
+  let s=M.create(),wheels=[];
+  const glyph=svg('<circle cx="16" cy="24" r="12" fill="none" stroke="#83d6d1"/><circle cx="34" cy="24" r="8" fill="none" stroke="#b7a4e8"/><circle cx="16" cy="12" r="3" fill="#eedbb6"/><circle cx="34" cy="32" r="3" fill="#eedbb6"/>');
+  function describe(){const ns=M.counts(s),step=Math.round(s.phase);return Math.abs(s.phase-step)>1e-7?'Between complete moves. The motion shows a transition between permutations.':`${step} signed moves. ${ns.map((n,i)=>`Cycle ${i+1} ${M.atHome(step,n)?'is home':'has not returned'}`).join('. ')}. First shared return after ${M.period(ns)} forward moves.`;}
+  function setPhase(p){s.phase=p;}
+  function settle(){const to=Math.round(s.phase);view.tween(s.phase,to,setPhase,180,()=>view.tone(M.atHome(to,M.period(M.counts(s)))?3:0));}
+  function advance(dir){const start=s.phase,target=dir>0?Math.floor(start+1e-7)+1:Math.ceil(start-1e-7)-1;view.tween(start,target,setPhase,420,()=>view.tone(M.atHome(target,M.period(M.counts(s)))?3:0));}
+  function render(v){
+    const ns=M.counts(s),count=ns.length,w=v.w,h=v.h;
+    const cy=h*.41,r=count===1?Math.min(w*.28,h*.27,110):Math.min(w*.147,h*.25,88);
+    wheels=ns.map((n,i)=>({n,cx:count===1?w/2:w*(i?.75:.25),cy,r}));
+    let body='',items=[];
+    const base=cy+r+38;
+    if(count===2)body+=`<path d="M${f(wheels[0].cx)} ${f(cy)}V${f(base)}H${f(wheels[1].cx)}V${f(cy)}" fill="none" stroke="#648896" stroke-opacity=".35"/>`;
+    wheels.forEach((wheel,i)=>{
+      const {n,cx}=wheel,home=M.atHome(s.phase,n);
+      body+=`<circle cx="${f(cx)}" cy="${f(cy)}" r="${f(r+18)}" fill="#83d6d1" fill-opacity=".025"/><circle cx="${f(cx)}" cy="${f(cy)}" r="${f(r)}" fill="none" stroke="#648896" stroke-opacity=".5"/>`;
+      if(home)body+=`<circle cx="${f(cx)}" cy="${f(cy)}" r="${f(r+21)}" fill="none" stroke="#83d6d1" stroke-opacity=".6"/>`;
+      for(let j=0;j<n;j++){
+        const angle=-Math.PI/2+j*tau/n,hx=cx+r*Math.cos(angle),hy=cy+r*Math.sin(angle);
+        const a=angle+s.phase*tau/n,x=cx+r*Math.cos(a),y=cy+r*Math.sin(a);
+        body+=`<path d="M${f(cx)} ${f(cy)}L${f(x)} ${f(y)}" fill="none" stroke="#648896" stroke-opacity=".35"/>`;
+        body+=shape(K.shapes[j],hx,hy,16,C[j],false,.42);
+        items.push({key:`rotor-${i}-${j}`,x,y,shape:K.shapes[j],color:C[j],label:`${K.shapes[j]} on the ${n}-place cycle. Drag around its ring, or use arrow keys to turn both mechanisms.`});
+      }
+      body+=`<circle cx="${f(cx)}" cy="${f(cy)}" r="5" fill="#0a1420" stroke="#648896"/>`;
+      if(home)body+=`<circle cx="${f(cx)}" cy="${f(cy)}" r="2.3" fill="#83d6d1"/>`;
+    });
+    const n=M.period(ns),p=M.progress(s),tickGap=Math.min(25,(w-90)/n),y=Math.min(h-52,base+48);
+    if(count===2)body+=`<circle cx="${f(w/2)}" cy="${f(base)}" r="7" fill="#0a1420" stroke="${M.atHome(s.phase,n)?C[1]:'#648896'}"/>${M.atHome(s.phase,n)?`<circle cx="${f(w/2)}" cy="${f(base)}" r="3" fill="#83d6d1"/>`:''}`;
+    for(let k=0;k<=n;k++)body+=`<circle cx="${f(w/2+(k-n/2)*tickGap)}" cy="${f(y)}" r="${k===0||k===n?3.3:2.2}" fill="#648896" opacity="${k<=p*n?.8:.35}"/>`;
+    body+=`<circle cx="${f(w/2+(p*n-n/2)*tickGap)}" cy="${f(y)}" r="6" fill="none" stroke="#eedbb6"/>`;
+    v.paint(body,items);v.examples(s.seed%M.cases.length,M.cases.length);
+  }
+  const view=K.create({title:'Return',description:'Turn a shape around its ring. Every shape follows the same repeated routing operation. Drag either ring to drive the shared mechanism; release to settle at a complete move. The faint outlines remember each starting place. Another example introduces a new cycle, then two cycles together. Reversing your hand reverses the operation.',glyph,render,describe,progress:()=>M.progress(s),snapshot:()=>({...s}),restore:value=>{s=M.restore(value);},
+    scrub:p=>{s.phase=p*M.period(M.counts(s));},settle,step:advance,
+    play(){const n=M.period(M.counts(s));s.phase=M.progress(s)*n;if(s.phase>=n-1e-7)s.phase=0;const start=Math.floor(s.phase)+.13+(s.phase%1)*.74;view.tween(start,n,raw=>{const step=Math.floor(raw);s.phase=step+K.clamp((raw-step-.13)/.74);},Math.max(700,(n-s.phase)*1000),()=>view.tone(3));},
+    rewind(){view.tween(s.phase,0,setPhase,650);},example(){s=M.create(s.seed+1);},
+    down(key,p){if(!key.startsWith('rotor-'))return null;const i=Number(key.split('-')[1]),g=wheels[i];return{original:s.phase,wheel:g,lastAngle:Math.atan2(p.y-g.cy,p.x-g.cx)};},
+    move(d,p){const g=d.wheel;if(Math.hypot(p.x-g.cx,p.y-g.cy)<g.r*.3){d.lastAngle=null;return;}const a=Math.atan2(p.y-g.cy,p.x-g.cx);if(d.lastAngle!==null)s.phase+=M.angularDelta(d.lastAngle,a)*g.n/tau;d.lastAngle=a;},
+    up(){settle();},cancel(d){s.phase=d.original;},activate(key){if(key.startsWith('rotor-'))advance(1);},nudge(key,dir){if(key.startsWith('rotor-'))advance(dir);}
+  });view.start();
+})();
+</script>
+</body>
+</html>

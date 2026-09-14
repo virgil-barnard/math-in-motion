@@ -1,0 +1,470 @@
+/* Wordless surfaces over the models in core.js. Native controls remain available. */
+(() => {
+  'use strict';
+  const M = MotionMath;
+  const app = document.getElementById('motion-app');
+  const stage = document.getElementById('stage');
+  const scene = document.getElementById('scene');
+  const objects = document.getElementById('objects');
+  const timeline = document.getElementById('timeline');
+  const play = document.getElementById('play');
+  const arrange = document.getElementById('arrange');
+  const example = document.getElementById('example');
+  const rewind = document.getElementById('rewind');
+  const sound = document.getElementById('sound');
+  const status = document.getElementById('status');
+  const seal = document.getElementById('lesson-seal');
+  const nav = document.getElementById('lesson-nav');
+  const names = { pairing: 'Correspondence', membership: 'Membership', composition: 'Composition' };
+  const descriptions = {
+    pairing: 'Pair each solid object with an open ring. Drag an object to a ring, or select the object and then the ring. The transformation control gathers and separates the paired objects. Rearranging keeps the connections. In later examples, move objects into or out of the lower reserve tray to repair an unmatched collection.',
+    membership: 'Two overlapping circles show two selection rules. The left circle is for round objects. The right circle is for filled objects. Round filled objects belong in both; angular hollow objects belong in neither. Drag each object, or select it and then a region. The transformation control demonstrates a sorting, preserving every object.',
+    composition: 'Three shapes pass through two routing mechanisms. Each mechanism permutes three tracks. Drag a mechanism to the other position, or use the swap button, to change their order. Tap a mechanism to bypass or restore it. Select a moving shape and then an output ring to predict its destination. Scrub or play to trace the actual route.'
+  };
+  const GOLD = '#eedbb6', AQUA = '#83d6d1', VIOLET = '#b7a4e8', LINE = '#648896';
+  const colors = [GOLD, AQUA, VIOLET];
+  const shapes = ['circle', 'triangle', 'diamond'];
+  const xml = value => String(value).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&apos;' }[c]));
+  const f = n => Number(n).toFixed(2);
+  function svg(body, box = '0 0 32 32') { return `<svg viewBox="${box}" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">${body}</svg>`; }
+  function glyph(kind) {
+    if (kind === 'pairing') return svg(`<path d="M8 10v13M24 10v13" stroke="${GOLD}" stroke-opacity=".5"/><circle cx="8" cy="7" r="3" fill="${GOLD}"/><circle cx="24" cy="7" r="3" fill="${GOLD}"/><circle cx="8" cy="25" r="5" stroke="${AQUA}"/><circle cx="24" cy="25" r="5" stroke="${AQUA}"/>`);
+    if (kind === 'membership') return svg(`<circle cx="11" cy="16" r="10" fill="${AQUA}" fill-opacity=".10" stroke="${AQUA}"/><circle cx="21" cy="16" r="10" fill="${VIOLET}" fill-opacity=".10" stroke="${VIOLET}"/><circle cx="16" cy="16" r="2.5" fill="${GOLD}"/>`);
+    return svg(`<path d="M6 3v5c0 5 20 3 20 9v12M26 3v5c0 5-20 3-20 9v12M16 3v26" stroke="${AQUA}" stroke-width="1.2"/><circle cx="6" cy="3" r="2.5" fill="${GOLD}"/><circle cx="26" cy="29" r="2.5" fill="${GOLD}"/>`);
+  }
+  const icons = {
+    play: svg('<path d="m12 7 13 9-13 9Z" fill="currentColor"/>'),
+    pause: svg('<path d="M12 8v16M21 8v16" stroke="currentColor" stroke-width="3" stroke-linecap="round"/>'),
+    rewind: svg('<path d="M8 9a11 11 0 1 1-2 12M8 3v7H1" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>'),
+    sound: svg('<path d="M4 12h5l7-6v20l-7-6H4ZM22 11c4 3 4 7 0 10M26 6c7 6 7 14 0 20" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>'),
+    silent: svg('<path d="M4 12h5l7-6v20l-7-6H4ZM23 12l7 8M30 12l-7 8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>'),
+    rearrange: svg(`<path d="M7 8c0 9 18 7 18 16M25 8c0 9-18 7-18 16" stroke="currentColor" stroke-opacity=".65" stroke-width="1.2"/><circle cx="7" cy="6" r="3" fill="currentColor"/><circle cx="25" cy="6" r="3" fill="currentColor"/><circle cx="7" cy="26" r="3" stroke="currentColor"/><circle cx="25" cy="26" r="3" stroke="currentColor"/>`),
+    swap: svg('<rect x="7" y="3" width="18" height="8" rx="3" stroke="currentColor"/><rect x="7" y="21" width="18" height="8" rx="3" stroke="currentColor"/><path d="M3 7v18l-2-3M29 25V7l2 3" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>'),
+    example: svg('<rect x="3" y="3" width="19" height="19" rx="6" stroke="currentColor" stroke-opacity=".45"/><rect x="10" y="10" width="19" height="19" rx="6" fill="#0d1b28" stroke="currentColor"/><circle cx="16" cy="16" r="1.7" fill="currentColor"/><circle cx="23" cy="23" r="1.7" fill="currentColor"/>')
+  };
+  function symbol(shape, x, y, radius, filled = true, color = GOLD, opacity = 1) {
+    const attrs = `fill="${filled ? color : 'none'}" stroke="${color}" stroke-width="${filled ? .8 : 2}" opacity="${opacity}" stroke-linejoin="round"`;
+    if (shape === 'circle') return `<circle cx="${f(x)}" cy="${f(y)}" r="${f(radius)}" ${attrs}/>`;
+    if (shape === 'triangle') return `<path d="M${f(x)},${f(y-radius*1.12)} L${f(x+radius)},${f(y+radius*.8)} L${f(x-radius)},${f(y+radius*.8)}Z" ${attrs}/>`;
+    return `<path d="M${f(x)},${f(y-radius*1.15)} L${f(x+radius*1.05)},${f(y)} L${f(x)},${f(y+radius*1.15)} L${f(x-radius*1.05)},${f(y)}Z" ${attrs}/>`;
+  }
+  function tokenArt(shape, filled, color, radius = 12) {
+    return `<svg class="token-art" viewBox="0 0 44 44" aria-hidden="true">${symbol(shape,22,22,radius,filled,color)}${filled && shape === 'circle' ? '<path d="M15 18a8 8 0 0 1 8-4" fill="none" stroke="#ffffff" stroke-opacity=".3" stroke-width="1.5" stroke-linecap="round"/>' : ''}</svg>`;
+  }
+  const worlds = { pairing: M.pairing(), membership: M.membership(), composition: M.composition() };
+  const edition = app.dataset.edition;
+  const allowed = edition === 'all' ? Object.keys(worlds) : [edition];
+  const hashKind = location.hash.slice(1);
+  let current = allowed.includes(hashKind) ? hashKind : allowed[0];
+  let state = worlds[current];
+  let width = 640, height = 540, frameId = 0, animation = null, transition = null;
+  let drag = null, suppressClick = '', pulses = [], hint = null, completed = false;
+  let audioContext = null, audioEnabled = false, lastSound = 0, lastScene = '', lastLive = '';
+  let reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  let seen = new Set(), controls = new Map(), lastPositions = new Map();
+  const motionQuery = matchMedia('(prefers-reduced-motion: reduce)');
+  motionQuery.addEventListener?.('change', event => { reduceMotion = event.matches; if (reduceMotion) { stop(); transition = null; pulses = []; render(); } });
+
+  function announce(message) { if (message !== lastLive) { lastLive = message; status.textContent = message; } }
+  function tone(index = 0, finished = false) {
+    if (!audioEnabled || !audioContext) return;
+    const now = audioContext.currentTime;
+    if (now - lastSound < .075) return;
+    lastSound = now;
+    const frequencies = finished ? [261.63, 392, 523.25] : [261.63 * Math.pow(2, [0, 3, 7, 10][index % 4] / 12)];
+    frequencies.forEach((frequency, i) => {
+      const start = now + i * .065, osc = audioContext.createOscillator(), gain = audioContext.createGain();
+      osc.type = 'sine'; osc.frequency.setValueAtTime(frequency * 1.003, start);
+      osc.frequency.exponentialRampToValueAtTime(frequency, start + .15);
+      gain.gain.setValueAtTime(.0001, start); gain.gain.exponentialRampToValueAtTime(.055 / frequencies.length, start + .012);
+      gain.gain.exponentialRampToValueAtTime(.0001, start + .65);
+      osc.connect(gain); gain.connect(audioContext.destination); osc.start(start); osc.stop(start + .7);
+      osc.onended = () => { osc.disconnect(); gain.disconnect(); };
+    });
+  }
+  sound.innerHTML = icons.silent;
+  sound.addEventListener('click', async () => {
+    if (!audioEnabled) {
+      const Audio = window.AudioContext || window.webkitAudioContext;
+      if (!Audio) { announce('Optional sound is unavailable in this browser.'); return; }
+      try { audioContext ||= new Audio(); await audioContext.resume(); audioEnabled = true; tone(0); }
+      catch { announce('Optional sound could not start.'); return; }
+    } else audioEnabled = false;
+    sound.setAttribute('aria-pressed', String(audioEnabled)); sound.setAttribute('aria-label', audioEnabled ? 'Mute optional sound' : 'Enable optional sound');
+    sound.innerHTML = icons[audioEnabled ? 'sound' : 'silent'];
+  });
+  function pulse(x, y, color = AQUA) { if (!reduceMotion) { pulses.push({ x, y, color, start: performance.now() }); requestFrame(); } }
+  function requestFrame() { if (!frameId) frameId = requestAnimationFrame(tick); }
+  function stop() { animation = null; play.innerHTML = icons.play; play.setAttribute('aria-label', 'Play the transformation'); }
+  function startProgress(target, duration = 1600, after = null) {
+    stop(); transition = null;
+    if (reduceMotion) { state.progress = target; syncRange(); render(); updateSummary(); after?.(); return; }
+    animation = { from: state.progress, target, start: performance.now(), duration, after, world: state };
+    play.innerHTML = icons.pause; play.setAttribute('aria-label', 'Pause the transformation'); requestFrame();
+  }
+  function syncRange() {
+    const n = Math.round(state.progress * 1000); timeline.value = String(n);
+    timeline.style.setProperty('--progress', `${n / 10}%`);
+    timeline.setAttribute('aria-valuetext', n === 0 ? 'Start of the transformation' : n === 1000 ? 'End of the transformation' : `${Math.round(n / 10)} percent through the transformation`);
+  }
+  function tick(now) {
+    frameId = 0;
+    let after = null;
+    if (animation) {
+      if (animation.world !== state) stop();
+      else {
+        const a = animation, t = M.clamp((now - a.start) / a.duration);
+        state.progress = M.mix(a.from, a.target, M.smooth(t));
+        if (t === 1) { state.progress = a.target; after = a.after; stop(); updateSummary(); }
+        syncRange();
+      }
+    }
+    if (transition && now - transition.start >= transition.duration) transition = null;
+    pulses = pulses.filter(p => now - p.start < 700);
+    if (hint && now > hint.until) hint = null;
+    render(now);
+    if (after) after();
+    if (animation || transition || pulses.length || hint) requestFrame();
+  }
+  function beginTransition(from, duration = 380) {
+    transition = reduceMotion ? null : { from, start: performance.now(), duration };
+    syncRange(); render(); if (transition) requestFrame();
+  }
+  function positions() {
+    const map = new Map();
+    if (current === 'pairing') {
+      state.tokens.forEach(t => map.set(`token-${t.id}`, M.pairPoint(state, t)));
+      state.sockets.forEach(s => map.set(`socket-${s.id}`, { x: s.x, y: s.y }));
+    } else if (current === 'membership') {
+      state.tokens.forEach(t => map.set(`token-${t.id}`, M.memberPoint(state, t, width, height)));
+      for (let i = 0; i < 4; i++) map.set(`region-${i}`, M.regionAnchor(i, width, height));
+    } else {
+      for (let i = 0; i < 3; i++) { map.set(`token-${i}`, M.routePoint(state, i)); map.set(`output-${i}`, { x: [.22,.5,.78][i], y: .82 }); }
+      state.gates.forEach((g, i) => map.set(`gate-${g.id}`, { x: .5, y: i ? .62 : .32 }));
+    }
+    return map;
+  }
+  function displayed(now) {
+    const result = positions();
+    if (transition) {
+      const t = M.smooth((now - transition.start) / transition.duration);
+      result.forEach((p, key) => { if (transition.from.has(key)) result.set(key, M.point(transition.from.get(key), p, t)); });
+    }
+    if (drag?.moved) result.set(drag.key, drag.pos);
+    return result;
+  }
+  function control(key, kind, pos, label, art = '', selected = false, extra = '') {
+    seen.add(key);
+    let button = controls.get(key);
+    if (!button) { button = document.createElement('button'); button.type = 'button'; button.dataset.key = key; button.dataset.kind = kind; controls.set(key, button); objects.appendChild(button); }
+    const className = `object ${kind}${selected ? ' selected' : ''}${drag?.key === key && drag.moved ? ' dragging' : ''}${extra ? ' '+extra : ''}`;
+    if (button.className !== className) button.className = className;
+    if (button.dataset.art !== art) { button.innerHTML = art; button.dataset.art = art; }
+    if (button.getAttribute('aria-label') !== label) button.setAttribute('aria-label', label);
+    if (kind === 'token') button.setAttribute('aria-pressed', String(selected));
+    button.style.left = `${pos.x * 100}%`; button.style.top = `${pos.y * 100}%`;
+    if (kind === 'gate') { button.style.width = '82%'; button.style.height = `${height * .2 + 18}px`; }
+    return button;
+  }
+  function linkPath(a, b) {
+    const x = a.x * width, y = a.y * height, bx = b.x * width, by = b.y * height;
+    const bend = (by - y) * .5;
+    return `M${f(x)} ${f(y)} C${f(x)} ${f(y+bend)} ${f(bx)} ${f(by-bend)} ${f(bx)} ${f(by)}`;
+  }
+  const ring = (p, radius = 23, color = LINE, opacity = .8, dash = '') => `<circle cx="${f(p.x*width)}" cy="${f(p.y*height)}" r="${radius}" fill="none" stroke="${color}" stroke-opacity="${opacity}" stroke-width="1.4" ${dash ? `stroke-dasharray="${dash}"` : ''}/>`;
+  function pairScene(pos) {
+    let body = '';
+    const done = M.completePairing(state);
+    for (const [id, socket] of Object.entries(state.links)) {
+      const a = pos.get(`token-${id}`), b = pos.get(`socket-${socket}`);
+      body += `<path d="${linkPath(a,b)}" fill="none" stroke="${GOLD}" stroke-opacity="${state.selected === Number(id) ? .95 : .46}" stroke-width="1.4"/>`;
+    }
+    if (drag?.moved && drag.kind==='token') {
+      const p=pos.get(drag.key);
+      state.sockets.forEach(s=>{
+        const q=pos.get(`socket-${s.id}`), distance=Math.hypot((p.x-q.x)*width,(p.y-q.y)*height);
+        const occupied=Object.entries(state.links).some(([id,target])=>Number(id)!==drag.id && target===s.id);
+        if(distance<85&&!occupied){
+          body+=ring(q,31,AQUA,.4*(1-distance/85));
+          body+=`<path d="${linkPath(p,q)}" fill="none" stroke="${AQUA}" stroke-width="1.2" stroke-opacity=".4" stroke-dasharray="2 5"/>`;
+        }
+      });
+    }
+    state.sockets.forEach(s => {
+      const p = pos.get(`socket-${s.id}`), assigned = Object.keys(state.links).find(id => state.links[id] === s.id);
+      body += ring(p,23,assigned === undefined ? LINE : AQUA,assigned === undefined ? .8 : .85);
+      body += ring(p,27,assigned === undefined ? LINE : AQUA,assigned === undefined ? .10 : .17);
+      if (done) body += ring(p,32,GOLD,.18);
+      control(`socket-${s.id}`,'target',p,`Ring ${s.id+1}${assigned === undefined ? ', empty' : `, paired with object ${Number(assigned)+1}`}`,'',false,state.selected !== null && assigned === undefined ? 'ready' : '');
+    });
+    const poolVisible = state.seed >= 2 || state.tokens.some(t => !t.active);
+    if (poolVisible) {
+      const x = width * .5, y = height * .88, half = Math.max(39,width*.26);
+      body += `<path d="M${f(x-half)} ${f(y-15)}v14q0 17 17 17h${f(half*2-34)}q17 0 17-17v-14" fill="none" stroke="${LINE}" stroke-opacity=".55" stroke-width="1.3"/>`;
+      control('reserve','reserve',{x:.5,y:.88},'Move the selected object out of the collection into the reserve');
+    }
+    state.tokens.forEach(t => {
+      const p = pos.get(`token-${t.id}`);
+      control(`token-${t.id}`,'token',p,`${t.shape === 'circle' ? 'Disc' : 'Diamond'} ${t.id+1}${t.active ? '' : ', in the reserve'}${state.links[t.id] === undefined ? ', unpaired' : `, paired with ring ${state.links[t.id]+1}`}`,tokenArt(t.shape,true,GOLD),state.selected===t.id);
+    });
+    return body;
+  }
+  function lensPath(g) {
+    const dx = g.right.x-g.left.x, middle = (g.left.x+g.right.x)/2;
+    const dy = Math.sqrt(g.r*g.r-dx*dx/4);
+    return `M${f(middle)} ${f(g.left.y-dy)} A${f(g.r)} ${f(g.r)} 0 0 1 ${f(middle)} ${f(g.left.y+dy)} A${f(g.r)} ${f(g.r)} 0 0 1 ${f(middle)} ${f(g.left.y-dy)}Z`;
+  }
+  function memberScene(pos) {
+    const g = M.lenses(width,height), selected = state.tokens.find(t => t.id === state.selected);
+    const selectionRegion = hint ? hint.region : selected ? M.regionOf(selected) : -1;
+    let body = `<circle cx="${f(g.left.x)}" cy="${f(g.left.y)}" r="${f(g.r)}" fill="${AQUA}" fill-opacity=".045" stroke="${AQUA}" stroke-opacity=".57" stroke-width="1.2"/>
+      <circle cx="${f(g.right.x)}" cy="${f(g.right.y)}" r="${f(g.r)}" fill="${VIOLET}" fill-opacity=".045" stroke="${VIOLET}" stroke-opacity=".57" stroke-width="1.2"/>
+      <path d="${lensPath(g)}" fill="${GOLD}" fill-opacity=".035"/>`;
+    const badgeY = g.left.y-g.r-23;
+    body += `<path d="M${f(g.left.x-8)} ${f(badgeY+13)}v10M${f(g.right.x+8)} ${f(badgeY+13)}v10" stroke="${LINE}" stroke-opacity=".4"/>`;
+    body += symbol('circle',g.left.x-18,badgeY,5,true,AQUA)+symbol('circle',g.left.x,badgeY,5,false,AQUA);
+    body += symbol('circle',g.right.x,badgeY,5,true,VIOLET)+symbol('diamond',g.right.x+18,badgeY,5,true,VIOLET);
+    const labels = ['Neither circle: angular and hollow','Left circle only: round and hollow','Right circle only: angular and filled','Both circles: round and filled'];
+    for (let r=0;r<4;r++) {
+      const p = pos.get(`region-${r}`);
+      if (selected || hint) body += ring(p,19,selectionRegion===r && hint ? GOLD : LINE,selectionRegion===r && hint ? .75 : .28,'2 6');
+      control(`region-${r}`,'region',p,labels[r]);
+    }
+    if (hint && selected) {
+      body += `<path d="${linkPath(pos.get(`token-${selected.id}`),pos.get(`region-${hint.region}`))}" stroke="${GOLD}" stroke-opacity=".33" stroke-dasharray="2 7" fill="none"/>`;
+    }
+    state.tokens.forEach(t => {
+      const p = pos.get(`token-${t.id}`), region = M.regionAt(p.x,p.y,width,height);
+      const inMotion = state.progress>0 && state.progress<1;
+      if (!inMotion && region===M.regionOf(t) && p.y<.76) body += ring(p,23,GOLD,.10);
+      control(`token-${t.id}`,'token',p,`${t.filled ? 'Filled' : 'Hollow'} ${t.shape}, object ${t.id+1}. ${labels[M.regionOf(t)]}.`,tokenArt(t.shape,t.filled,GOLD,t.size),state.selected===t.id);
+    });
+    return body;
+  }
+  function routePath(input) {
+    const lane = M.route(state,input).map(i => [.22,.5,.78][i]*width), y = value => f(value*height);
+    return `M${f(lane[0])} ${y(.10)} L${f(lane[0])} ${y(.22)} C${f(lane[0])} ${y(.22+.2/3)} ${f(lane[1])} ${y(.42-.2/3)} ${f(lane[1])} ${y(.42)} L${f(lane[1])} ${y(.52)} C${f(lane[1])} ${y(.52+.2/3)} ${f(lane[2])} ${y(.72-.2/3)} ${f(lane[2])} ${y(.72)} L${f(lane[2])} ${y(.82)}`;
+  }
+  function compositionScene(pos) {
+    let body = '';
+    state.gates.forEach((gate,slot) => {
+      const p = pos.get(`gate-${gate.id}`), x=width*.09, y=p.y*height-height*.1-9;
+      const color = gate.id===0 ? AQUA : VIOLET;
+      body += `<rect x="${f(x)}" y="${f(y)}" width="${f(width*.82)}" height="${f(height*.2+18)}" rx="19" fill="${color}" fill-opacity="${gate.active ? .035 : .009}" stroke="${color}" stroke-opacity="${gate.active ? .37 : .16}" stroke-width="1.1"/>`;
+      body += `<path d="M${f(width*.5-10)} ${f(y+7)}h20" stroke="${color}" stroke-width="2" stroke-opacity=".55" stroke-linecap="round"/>`;
+      body += `<circle cx="${f(width*.09+13)}" cy="${f(p.y*height)}" r="2.5" fill="${color}" opacity="${gate.active ? .9 : .2}"/>`;
+      const button = control(`gate-${gate.id}`,'gate',p,`${slot===0 ? 'Upper' : 'Lower'} routing mechanism, ${gate.active ? 'active' : 'bypassed'}. Select to ${gate.active ? 'bypass' : 'restore'}; drag to swap order.`);
+      button.setAttribute('aria-pressed',String(gate.active));
+    });
+    for (let i=0;i<3;i++) {
+      const d=routePath(i), highlighted=state.selected===i;
+      body += `<path d="${d}" fill="none" stroke="#0b1722" stroke-width="5"/><path d="${d}" fill="none" stroke="${colors[i]}" stroke-opacity="${highlighted ? .64 : .27}" stroke-width="${highlighted ? 1.8 : 1.2}"/>`;
+      const source={x:[.22,.5,.78][i],y:.10};
+      body += ring(source,22,LINE,.28);
+      const output=pos.get(`output-${i}`);
+      body += ring(output,23,LINE,.74)+ring(output,27,LINE,.15);
+      control(`output-${i}`,'target',output,`Predict output ${i+1} for the selected ${shapes[state.selected ?? 0]}`,'',false,state.selected!==null && state.progress<1 ? 'ready' : '');
+      control(`token-${i}`,'token',pos.get(`token-${i}`),`${shapes[i]} input ${i+1}. Select to trace or predict its route.`,tokenArt(shapes[i],true,colors[i]),state.selected===i);
+    }
+    for (const [input,output] of Object.entries(state.predictions)) {
+      const p=pos.get(`output-${output}`);
+      body += symbol(shapes[input],p.x*width,p.y*height,16,false,colors[input],.45);
+    }
+    if (state.previous) {
+      const y=height*.94;
+      body += `<path d="M${f(width*.15)} ${f(y-15)}v26h${f(width*.70)}v-26" fill="none" stroke="${LINE}" stroke-opacity=".2"/>`;
+      state.previous.forEach((output,input) => { body += symbol(shapes[input],[.22,.5,.78][output]*width,y,6,false,colors[input],.35); });
+    }
+    return body;
+  }
+  function render(now=performance.now()) {
+    if (!(width>0 && height>0)) return;
+    seen=new Set();
+    const pos=displayed(now); lastPositions=pos;
+    let body = current==='pairing' ? pairScene(pos) : current==='membership' ? memberScene(pos) : compositionScene(pos);
+    for (const p of pulses) {
+      const t=M.clamp((now-p.start)/700);
+      body+=`<circle cx="${f(p.x*width)}" cy="${f(p.y*height)}" r="${f(23+28*M.smooth(t))}" fill="none" stroke="${p.color}" stroke-width="1.2" stroke-opacity="${f((1-t)*.48)}"/>`;
+    }
+    if (body!==lastScene) { scene.innerHTML=body; lastScene=body; }
+    controls.forEach((button,key)=>{ if (!seen.has(key)) { button.remove(); controls.delete(key); } });
+    const done=current==='pairing' ? M.completePairing(state) : current==='membership' ? M.completeMembership(state,width,height) : state.progress===1;
+    seal.classList.toggle('complete',done);
+    if (done && !completed) tone(0,true);
+    completed=done;
+  }
+  function updateSummary() {
+    if (current==='pairing') {
+      const active=state.tokens.filter(t=>t.active).length, paired=Object.keys(state.links).length;
+      announce(`${active} objects in the collection, ${state.sockets.length} rings, ${paired} pairings. ${M.completePairing(state) ? 'Every object and every ring is paired exactly once.' : 'Unpaired objects or rings remain.'}`);
+    } else if (current==='membership') {
+      const correct=state.tokens.filter(t=>{const p=M.memberPoint(state,t,width,height);return M.regionAt(p.x,p.y,width,height)===M.regionOf(t);}).length;
+      announce(`${correct} of ${state.tokens.length} objects are placed in a region consistent with both rules. The left circle selects round shapes; the right selects filled shapes.`);
+    } else {
+      if (state.progress===1) announce(M.result(state).map((out,i)=>`${shapes[i]} finishes at output ${out+1}`).join('. ')+'.');
+      else announce('Trace the selected shape through the two routing mechanisms.');
+    }
+  }
+  function clearObjects() { controls.forEach(button=>button.remove()); controls.clear(); lastPositions=new Map(); lastScene=''; }
+  function choose(kind, announceChange=true) {
+    if (!allowed.includes(kind)) return;
+    cancelDrag(); stop(); transition=null; pulses=[]; hint=null;
+    current=kind; state=worlds[kind]; completed=false; clearObjects();
+    document.getElementById('lesson-title').textContent=names[kind];
+    document.getElementById('lesson-description').textContent=descriptions[kind];
+    document.getElementById('timeline-description').textContent=kind==='pairing' ? 'Move between your separated arrangement and the paired objects resting inside their rings.' : kind==='membership' ? 'Replay a demonstrated sorting of the current arrangement. Rewinding restores the recorded starting positions; it is not an inverse of classification.' : 'Move each input through the first routing mechanism and then the second.';
+    arrange.innerHTML=icons[kind==='composition'?'swap':'rearrange'];
+    arrange.setAttribute('aria-label',kind==='composition'?'Swap the order of the two routing mechanisms':'Rearrange the same objects');
+    seal.innerHTML=glyph(kind);
+    nav.querySelectorAll('button').forEach(button=>button.setAttribute('aria-pressed',String(button.dataset.lesson===kind)));
+    stage.classList.remove('scene-enter'); if (!reduceMotion) { void stage.offsetWidth; stage.classList.add('scene-enter'); }
+    syncRange(); resize(); if (announceChange) announce(names[kind]+'. '+descriptions[kind]);
+  }
+  allowed.forEach(kind=>{
+    const button=document.createElement('button'); button.type='button'; button.className='nav-button'; button.dataset.lesson=kind;
+    button.setAttribute('aria-label',names[kind]); button.innerHTML=glyph(kind);
+    button.addEventListener('click',()=>{choose(kind); if(edition==='all' && location.hash!==`#${kind}`) location.hash=kind;}); nav.appendChild(button);
+  });
+  window.addEventListener('hashchange',()=>{const kind=location.hash.slice(1);if(allowed.includes(kind)&&kind!==current) choose(kind);});
+  play.innerHTML=icons.play; rewind.innerHTML=icons.rewind; example.innerHTML=icons.example;
+  play.addEventListener('click',()=>{
+    cancelDrag(); if(animation){stop();return;}
+    const duration=current==='composition'?3300:2100;
+    if(state.progress>=.999 && !reduceMotion) startProgress(0,850,()=>startProgress(1,duration));
+    else { if(state.progress>=.999){state.progress=0;syncRange();render();} startProgress(1,duration); }
+  });
+  rewind.addEventListener('click',()=>{cancelDrag();startProgress(0,600);});
+  timeline.addEventListener('input',()=>{const value=Number(timeline.value);cancelDrag();stop();transition=null;state.progress=value/1000;syncRange();render();});
+  timeline.addEventListener('change',updateSummary);
+  function changeGates(action) {
+    const previous=state.progress===1?M.result(state):null;
+    const change=()=>{const from=new Map(lastPositions);action();state.previous=previous;beginTransition(from,420);tone(1);updateSummary();};
+    if(state.progress>0) startProgress(0,400,change); else change();
+  }
+  arrange.addEventListener('click',()=>{
+    cancelDrag();stop();hint=null;const from=new Map(lastPositions);
+    if(current==='pairing'){M.rearrangePairing(state);beginTransition(from,600);tone(1);updateSummary();}
+    else if(current==='membership'){M.rearrangeMembership(state);beginTransition(from,500);tone(1);updateSummary();}
+    else changeGates(()=>M.swapGates(state));
+  });
+  example.addEventListener('click',()=>{
+    cancelDrag();stop();worlds[current]=M[current](state.seed+1);choose(current,false);tone(2);updateSummary();
+  });
+  function normalized(event) {
+    const rect=stage.getBoundingClientRect();
+    return {x:M.clamp((event.clientX-rect.left)/width,24/width,1-24/width),y:M.clamp((event.clientY-rect.top)/height,24/height,1-24/height)};
+  }
+  function rebasePairing() {
+    const points=state.tokens.map(t=>lastPositions.get(`token-${t.id}`) || M.pairPoint(state,t));
+    state.tokens.forEach((t,i)=>{if(t.active)Object.assign(t,points[i]);}); state.progress=0;
+  }
+  function cancelDrag() {
+    if(!drag)return;
+    const cancelled=drag;drag=null;
+    if(cancelled.moved && cancelled.snapshot){worlds[current]=cancelled.snapshot;state=worlds[current];}
+    try{cancelled.button.releasePointerCapture(cancelled.pointer);}catch{}
+    transition=null;syncRange();render();
+  }
+  objects.addEventListener('pointerdown',event=>{
+    const button=event.target.closest('button[data-key]');
+    if(!button || !['token','gate'].includes(button.dataset.kind) || (current==='composition'&&button.dataset.kind==='token'))return;
+    if(drag)return;
+    if(event.button!==0)return;
+    stop();suppressClick='';
+    const key=button.dataset.key, id=Number(key.split('-')[1]);
+    drag={key,id,kind:button.dataset.kind,button,pointer:event.pointerId,start:{x:event.clientX,y:event.clientY},origin:{...lastPositions.get(key)},pos:{...lastPositions.get(key)},moved:false,snapshot:JSON.parse(JSON.stringify(state))};
+    button.setPointerCapture(event.pointerId);
+  });
+  objects.addEventListener('pointermove',event=>{
+    if(!drag || event.pointerId!==drag.pointer)return;
+    const distance=Math.hypot(event.clientX-drag.start.x,event.clientY-drag.start.y);
+    if(!drag.moved&&distance<6)return;
+    if(!drag.moved){
+      transition=null;drag.moved=true;
+      if(current==='pairing')rebasePairing();
+      if(current==='membership')M.rebaseMembers(state,width,height);
+      state.selected=drag.kind==='token'?drag.id:state.selected;
+      syncRange();
+    }
+    const p=normalized(event);
+    drag.pos=drag.kind==='gate'?{x:.5,y:M.clamp(drag.origin.y+(event.clientY-drag.start.y)/height,.22,.72)}:p;
+    hint=null;render();
+  });
+  objects.addEventListener('pointercancel',event=>{if(drag?.pointer===event.pointerId)cancelDrag();});
+  objects.addEventListener('lostpointercapture',event=>{if(drag?.pointer===event.pointerId)cancelDrag();});
+  objects.addEventListener('pointerup',event=>{
+    if(!drag || event.pointerId!==drag.pointer)return;
+    const ended=drag;drag=null;
+    try{ended.button.releasePointerCapture(ended.pointer);}catch{}
+    if(!ended.moved)return;
+    suppressClick=ended.key;
+    const from=new Map(lastPositions), p=ended.pos;
+    if(current==='pairing') {
+      const token=state.tokens.find(t=>t.id===ended.id);
+      const target=state.sockets.reduce((best,s)=>{const d=Math.hypot((s.x-p.x)*width,(s.y-p.y)*height);return !best||d<best.d?{s,d}:best;},null);
+      if(p.y>.82&&(state.seed>=2||!token.active)){M.putAway(state,token.id);pulse(.5,.88,LINE);tone(0);}
+      else if(target&&target.d<36&&M.connect(state,token.id,target.s.id)){token.x=p.x;token.y=Math.min(p.y,.45);state.progress=1;pulse(target.s.x,target.s.y);tone(token.id);}
+      else {token.active=true;token.x=p.x;token.y=p.y;state.progress=0;if(target&&target.d<36)pulse(target.s.x,target.s.y,GOLD);}
+      beginTransition(from,330);
+    } else if(current==='membership') {
+      const token=state.tokens.find(t=>t.id===ended.id); token.x=p.x;token.y=p.y;
+      const region=M.regionAt(p.x,p.y,width,height),expected=M.regionOf(token);
+      if(region===expected){
+        const collision=state.tokens.some(t=>t.id!==token.id&&Math.hypot((t.x-token.x)*width,(t.y-token.y)*height)<34);
+        if(collision)Object.assign(token,M.memberTarget(state,token,width,height));
+        state.selected=null;pulse(token.x,token.y,region===1?AQUA:region===2?VIOLET:GOLD);tone(region);
+      }else{hint={region:expected,until:performance.now()+1400};state.selected=token.id;requestFrame();}
+      beginTransition(from,240);
+    } else {
+      const slot=state.gates.findIndex(g=>g.id===ended.id),other=slot===0?p.y>.47:p.y<.47;
+      if(other)changeGates(()=>M.swapGates(state));else beginTransition(from,280);
+    }
+    updateSummary();
+  });
+  objects.addEventListener('click',event=>{
+    const button=event.target.closest('button[data-key]');if(!button)return;
+    const key=button.dataset.key;
+    if(event.detail>0&&suppressClick===key){suppressClick='';return;}suppressClick='';
+    const type=button.dataset.kind,id=Number(key.split('-')[1]);
+    stop();
+    if(type==='token'){
+      state.selected=state.selected===id?null:id;hint=null;render();
+      announce(state.selected===null?'Selection cleared.':button.getAttribute('aria-label')+' Selected.');return;
+    }
+    if(current==='pairing'&&state.selected!==null&&(type==='target'||type==='reserve')){
+      const from=new Map(lastPositions),selected=state.selected;
+      if(type==='reserve'){M.putAway(state,selected);pulse(.5,.88,LINE);}
+      else if(M.connect(state,selected,id)){state.progress=1;const target=state.sockets.find(s=>s.id===id);pulse(target.x,target.y);tone(selected);}
+      else {const target=state.sockets.find(s=>s.id===id);pulse(target.x,target.y,GOLD);announce('This ring already has a partner. Choose an empty ring.');}
+      beginTransition(from);updateSummary();
+    }else if(current==='membership'&&type==='region'&&state.selected!==null){
+      const from=new Map(lastPositions);M.rebaseMembers(state,width,height);
+      const token=state.tokens.find(t=>t.id===state.selected);
+      Object.assign(token,id===M.regionOf(token)?M.memberTarget(state,token,width,height):M.regionAnchor(id,width,height));
+      if(id===M.regionOf(token)){state.selected=null;hint=null;pulse(token.x,token.y);tone(id);}
+      else {hint={region:M.regionOf(token),until:performance.now()+1400};requestFrame();}
+      beginTransition(from);updateSummary();
+    }else if(current==='composition'&&type==='gate')changeGates(()=>M.toggleGate(state,id));
+    else if(current==='composition'&&type==='target'){
+      state.predictions[state.selected??0]=id;pulse([.22,.5,.78][id],.82,colors[state.selected??0]);render();announce(`Prediction placed at output ${id+1}. Play or scrub to inspect the actual route.`);
+    }
+  });
+  window.addEventListener('keydown',event=>{if(event.key==='Escape'){cancelDrag();state.selected=null;hint=null;render();announce('Selection cleared.');}});
+  function resize(){
+    if(drag)cancelDrag();
+    const rect=stage.getBoundingClientRect();width=Math.max(240,rect.width);height=Math.max(320,rect.height);
+    scene.setAttribute('viewBox',`0 0 ${width} ${height}`);lastScene='';transition=null;render();
+  }
+  if(typeof ResizeObserver!=='undefined')new ResizeObserver(resize).observe(stage);else window.addEventListener('resize',resize);
+  document.addEventListener('visibilitychange',()=>{if(document.hidden){stop();cancelDrag();}});
+  choose(current,false);
+  if(typeof MotionBridge!=='undefined')MotionBridge.connect({
+    snapshot:()=>({version:1,kind:current,state:JSON.parse(JSON.stringify(state))}),
+    restore(value){
+      if(value?.version!==1||value.kind!==current||value.state?.kind!==current||!Number.isInteger(value.state.seed)||value.state.seed<0||!Number.isFinite(value.state.progress)||value.state.progress<0||value.state.progress>1)return;
+      // Same-document snapshots are kept only in the trusted catalog's memory.
+      stop();cancelDrag();worlds[current]=JSON.parse(JSON.stringify(value.state));state=worlds[current];choose(current,false);
+    },
+    pause(){stop();cancelDrag();transition=null;pulses=[];hint=null;if(audioEnabled){audioEnabled=false;audioContext?.suspend();sound.innerHTML=icons.silent;sound.setAttribute('aria-pressed','false');sound.setAttribute('aria-label','Enable optional sound');}render();}
+  });
+})();

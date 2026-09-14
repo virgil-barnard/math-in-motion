@@ -1,0 +1,19 @@
+{
+  "contract": 1,
+  "id": "undo",
+  "title": "Undo",
+  "summary": "Build an operation that restores every input.",
+  "order": 4,
+  "builds_on": [
+    "composition"
+  ],
+  "related": [
+    "return"
+  ],
+  "contexts": [
+    "groups",
+    "transformations"
+  ],
+  "entry": "entry.html",
+  "glyph": "glyph.svg"
+}

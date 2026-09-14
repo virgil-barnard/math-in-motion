@@ -1,0 +1,24 @@
+{
+  "contract": 1,
+  "status": "ready",
+  "id": "fold",
+  "title": "Fold",
+  "summary": "Bring hinged square faces into three dimensions.",
+  "order": 8,
+  "builds_on": [
+    "correspondence"
+  ],
+  "related": [
+    "return"
+  ],
+  "contexts": [
+    "geometry",
+    "spatial-reasoning",
+    "transformations"
+  ],
+  "entry": "entry.html",
+  "glyph": "glyph.svg",
+  "interaction_checks": [
+    "interaction.test.cjs"
+  ]
+}

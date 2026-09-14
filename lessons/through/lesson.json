@@ -1,0 +1,25 @@
+{
+  "contract": 1,
+  "status": "ready",
+  "id": "through",
+  "title": "Through",
+  "summary": "Trace every way to connect through an intermediate object.",
+  "order": 7,
+  "builds_on": [
+    "connections",
+    "composition"
+  ],
+  "related": [
+    "same"
+  ],
+  "contexts": [
+    "relations",
+    "matrices",
+    "combinatorics"
+  ],
+  "entry": "entry.html",
+  "glyph": "glyph.svg",
+  "interaction_checks": [
+    "interaction.test.cjs"
+  ]
+}

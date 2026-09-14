@@ -1,0 +1,24 @@
+{
+  "contract": 1,
+  "status": "ready",
+  "id": "connections",
+  "title": "Connections",
+  "summary": "Edit one relationship as connected shapes or a matrix.",
+  "order": 6,
+  "builds_on": [
+    "same"
+  ],
+  "related": [
+    "composition"
+  ],
+  "contexts": [
+    "graphs",
+    "relations",
+    "matrices"
+  ],
+  "entry": "entry.html",
+  "glyph": "glyph.svg",
+  "interaction_checks": [
+    "interaction.test.cjs"
+  ]
+}

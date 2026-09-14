@@ -1,0 +1,10 @@
+<main id="lesson-app">
+  <h1 id="lesson-title" class="sr-only"></h1>
+  <header class="lesson-header"><div id="lesson-glyph" class="lesson-glyph" aria-hidden="true"></div><button id="sound" type="button" aria-label="Enable optional sound" aria-pressed="false"></button></header>
+  <section id="stage" aria-labelledby="lesson-title" aria-describedby="lesson-description"><svg id="scene" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"></svg><div id="objects"></div></section>
+  <footer class="lesson-footer">
+    <div class="transport"><button id="play" class="round-control" type="button" aria-label="Play the transformation"></button><label for="timeline" class="sr-only">Inspect the transformation</label><input id="timeline" type="range" min="0" max="1000" step="1" value="0"><button id="rewind" class="quiet-control" type="button" aria-label="Return to the beginning"></button></div>
+    <div class="tools"><div id="example-progress" class="example-progress" aria-hidden="true"></div><button id="example" class="quiet-control" type="button" aria-label="Explore another example"></button></div>
+  </footer>
+  <p id="lesson-description" class="sr-only"></p><p id="status" class="sr-only" aria-live="polite" aria-atomic="true"></p>
+</main>

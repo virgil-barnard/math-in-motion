@@ -1,0 +1,21 @@
+{
+  "contract": 1,
+  "id": "same",
+  "title": "Same",
+  "summary": "Make different constructions agree on every input.",
+  "order": 5,
+  "builds_on": [
+    "return",
+    "undo"
+  ],
+  "related": [
+    "membership"
+  ],
+  "contexts": [
+    "logic",
+    "groups",
+    "representations"
+  ],
+  "entry": "entry.html",
+  "glyph": "glyph.svg"
+}

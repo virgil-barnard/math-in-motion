@@ -1,0 +1,289 @@
+<!doctype html>
+<html lang="en" data-lesson="through">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"><meta name="theme-color" content="#0a1420"><title>Through · Mathematics in Motion</title><style>:root{color-scheme:dark;--bg:#0a1420;--ink:#eedbb6;--aqua:#83d6d1;--violet:#b7a4e8;--line:#648896;--soft:#aec4cb}
+*{box-sizing:border-box}html,body{margin:0;min-width:280px;min-height:100%;background:var(--bg)}body{color:var(--ink);font-family:system-ui,sans-serif;background:radial-gradient(ellipse at 50% 35%,#152c3b, #0a1420 70%);-webkit-tap-highlight-color:transparent}button,input{font:inherit}button{border:0;background:none;color:inherit;cursor:pointer;padding:0;touch-action:manipulation;-webkit-user-select:none;user-select:none}button:focus-visible,input:focus-visible{outline:2px solid #f5e5bb;outline-offset:4px}button svg{width:100%;height:100%;pointer-events:none}svg{display:block}button:active{filter:brightness(1.2)}[hidden]{display:none!important}
+.sr-only{position:absolute!important;width:1px!important;height:1px!important;padding:0!important;margin:-1px!important;overflow:hidden!important;clip-path:inset(50%)!important;white-space:nowrap!important;border:0!important}
+#lesson-app{width:min(100%,1000px);height:100vh;height:100svh;min-height:570px;max-height:1000px;margin:auto;display:grid;grid-template-rows:64px minmax(370px,1fr) 132px;padding:env(safe-area-inset-top) 18px env(safe-area-inset-bottom)}
+.lesson-header{display:flex;align-items:center;justify-content:center;position:relative}.lesson-glyph{width:34px;height:34px;opacity:.75}.lesson-header #sound{position:absolute;right:0;width:46px;height:46px;padding:13px;opacity:.6;border-radius:50%}.lesson-header #sound[aria-pressed=true]{opacity:1}
+#stage{position:relative;min-height:370px;isolation:isolate}#scene,#objects{position:absolute;inset:0;width:100%;height:100%}#scene{pointer-events:none;overflow:visible}#objects{pointer-events:none}.piece{position:absolute;transform:translate(-50%,-50%);width:48px;height:48px;border-radius:50%;pointer-events:auto;touch-action:none;display:grid;place-items:center;z-index:2;cursor:grab}.piece svg{width:44px;height:44px;filter:drop-shadow(0 0 9px #eedbb61a)}.piece:hover{background:#83d6d10b}.piece:active,.piece.dragging{cursor:grabbing;background:#eedbb610}.piece.choice{width:64px;height:56px;border-radius:14px;cursor:pointer;background:#83d6d108;border:1px solid #64889655}.piece.choice[aria-pressed=true]{border-color:#eedbb6aa;background:#eedbb60d}.piece.choice svg{width:48px;height:42px;filter:none}.piece.gate-target{width:78%;height:70px;border-radius:15px;background:transparent;z-index:1}
+.lesson-footer{display:flex;flex-direction:column;justify-content:center;gap:12px;padding:0 max(8px,5%)}.transport{display:flex;align-items:center;gap:18px}.round-control{width:48px;height:48px;flex:none;border:1px solid #afc3ca40;border-radius:50%;padding:15px;background:#83d6d108}.quiet-control{width:46px;height:46px;flex:none;border-radius:50%;padding:13px;opacity:.7}.quiet-control:hover{background:#83d6d10d;opacity:1}.tools{display:flex;align-items:center;justify-content:center;gap:22px}.example-progress{display:flex;gap:10px;min-width:80px;justify-content:center;align-items:center}.example-dot{width:4px;height:4px;border-radius:50%;background:#64889666}.example-dot.active{background:var(--ink);box-shadow:0 0 0 3px #eedbb619}
+input[type=range]{width:100%;min-width:0;height:48px;margin:0;background:transparent;accent-color:var(--aqua);cursor:ew-resize}
+.embedded #lesson-app{grid-template-rows:42px minmax(370px,1fr) 128px;min-height:540px}.embedded .lesson-glyph{opacity:.35;width:26px;height:26px}
+@media(max-width:560px){#lesson-app{padding-left:10px;padding-right:10px}.lesson-footer{padding:0 12px}.transport{gap:12px}}
+@media(prefers-reduced-motion:reduce){*,*:before,*:after{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
+
+.piece.cell{width:48px;height:48px;border-radius:9px;cursor:pointer}.piece.cell svg{width:48px;height:48px;filter:none}.piece.node[aria-pressed=true]{box-shadow:0 0 0 1px #eedbb688;background:#eedbb608}.piece.mode{width:56px;height:48px;border-radius:14px;cursor:pointer;border:1px solid #64889644;background:#64889608}.piece.mode[aria-pressed=true]{border-color:#eedbb68a;background:#eedbb610}.piece.mode svg{width:36px;height:36px;filter:none}
+/* 656 viewport pixels minus 36 pixels of app padding is the 620-pixel stage breakpoint. */
+@media(max-width:655px){#lesson-app{min-height:844px;height:max(100svh,844px);max-height:none;grid-template-rows:54px minmax(650px,1fr) 132px}.embedded #lesson-app{min-height:828px;grid-template-rows:42px minmax(650px,1fr) 128px}#stage{min-height:650px}}
+</style></head>
+<body>
+<main id="lesson-app">
+  <h1 id="lesson-title" class="sr-only"></h1>
+  <header class="lesson-header"><div id="lesson-glyph" class="lesson-glyph" aria-hidden="true"></div><button id="sound" type="button" aria-label="Enable optional sound" aria-pressed="false"></button></header>
+  <section id="stage" aria-labelledby="lesson-title" aria-describedby="lesson-description"><svg id="scene" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"></svg><div id="objects"></div></section>
+  <footer class="lesson-footer">
+    <div class="transport"><button id="play" class="round-control" type="button" aria-label="Play the transformation"></button><label for="timeline" class="sr-only">Inspect the transformation</label><input id="timeline" type="range" min="0" max="1000" step="1" value="0"><button id="rewind" class="quiet-control" type="button" aria-label="Return to the beginning"></button></div>
+    <div class="tools"><div id="example-progress" class="example-progress" aria-hidden="true"></div><button id="example" class="quiet-control" type="button" aria-label="Explore another example"></button></div>
+  </footer>
+  <p id="lesson-description" class="sr-only"></p><p id="status" class="sr-only" aria-live="polite" aria-atomic="true"></p>
+</main>
+
+<script>/* Portable document contract v1. Parent identity is checked; no network access. */
+const MotionBridge = (() => {
+  const channel = 'mathematics-in-motion/v1';
+  let hooks = null;
+  const lesson = document.documentElement.dataset.lesson;
+  const embedded = window.parent !== window;
+  if (embedded) document.documentElement.classList.add('embedded');
+  function send(type, extra = {}) {
+    if (embedded) window.parent.postMessage({channel, lesson, type, ...extra}, '*');
+  }
+  function changed() { if (hooks) send('state', {state: hooks.snapshot()}); }
+  window.addEventListener('message', event => {
+    if (!embedded || event.source !== window.parent || event.data?.channel !== channel || !hooks) return;
+    const data = event.data;
+    if (data.type === 'restore') {
+      if (data.state) hooks.restore(data.state);
+      changed();
+    } else if (data.type === 'pause') {
+      hooks.pause();
+      send('paused', {request: data.request, state: hooks.snapshot()});
+    }
+  });
+  return {
+    connect(value) { hooks = value; send('ready'); },
+    changed,
+    explored() { send('explored'); }
+  };
+})();
+</script>
+<script>/* Small optional author kit. Lessons own models, state, geometry, and gestures. */
+const MotionKit = (() => {
+  const C = ['#eedbb6','#83d6d1','#b7a4e8','#d8a78b'];
+  const shapes = ['circle','square','triangle','diamond'];
+  const clamp = (x,a=0,b=1) => Math.max(a,Math.min(b,x));
+  const smooth = x => x*x*(3-2*x);
+  const f = x => Number(x).toFixed(3);
+  const svg = body => `<svg viewBox="0 0 48 48" aria-hidden="true" xmlns="http://www.w3.org/2000/svg">${body}</svg>`;
+  function shape(kind,x,y,r,color=C[0],filled=true,opacity=1) {
+    const a=`fill="${filled?color:'none'}" stroke="${color}" stroke-width="${filled?.7:1.2}" opacity="${opacity}" stroke-linejoin="round"`;
+    if(kind==='circle')return `<circle cx="${f(x)}" cy="${f(y)}" r="${r}" ${a}/>`;
+    if(kind==='square')return `<rect x="${f(x-r)}" y="${f(y-r)}" width="${2*r}" height="${2*r}" rx="2.5" ${a}/>`;
+    if(kind==='triangle')return `<path d="M${f(x)} ${f(y-r*1.15)}L${f(x+r)} ${f(y+r*.8)}L${f(x-r)} ${f(y+r*.8)}Z" ${a}/>`;
+    return `<path d="M${f(x)} ${f(y-r*1.2)}L${f(x+r)} ${f(y)}L${f(x)} ${f(y+r*1.2)}L${f(x-r)} ${f(y)}Z" ${a}/>`;
+  }
+  const icons={
+    play:svg('<path d="m18 10 20 14-20 14Z" fill="currentColor"/>'),
+    pause:svg('<path d="M18 12v24M30 12v24" stroke="currentColor" stroke-width="4" stroke-linecap="round"/>'),
+    rewind:svg('<path d="M12 12a16 16 0 1 1-3 20M12 3v11H2" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>'),
+    example:svg('<rect x="5" y="5" width="27" height="27" rx="8" fill="none" stroke="currentColor" opacity=".45"/><rect x="16" y="16" width="27" height="27" rx="8" fill="#102230" stroke="currentColor"/><circle cx="24" cy="24" r="2" fill="currentColor"/><circle cx="35" cy="35" r="2" fill="currentColor"/>'),
+    silent:svg('<path d="M7 18h7l10-8v28l-10-8H7ZM33 18l10 12M43 18 33 30" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>'),
+    sound:svg('<path d="M7 18h7l10-8v28l-10-8H7ZM32 17q7 7 0 14M38 10q13 14 0 28" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>')
+  };
+  function create(spec) {
+    const $=id=>document.getElementById(id);
+    const stage=$('stage'),scene=$('scene'),objects=$('objects'),range=$('timeline'),play=$('play');
+    let w=640,h=500,frame=0,animation=null,drag=null,suppress=null,lastStatus='';
+    let reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
+    let audio=null,enabled=false;
+    const buttons=new Map();
+    $('lesson-title').textContent=spec.title;
+    $('lesson-description').textContent=spec.description;
+    $('lesson-glyph').innerHTML=spec.glyph;
+    $('rewind').innerHTML=icons.rewind;$('example').innerHTML=icons.example;$('sound').innerHTML=icons.silent;
+    function announce(text) {if(text!==lastStatus){$('status').textContent=text;lastStatus=text;}}
+    function stop(){animation=null;cancelAnimationFrame(frame);frame=0;play.innerHTML=icons.play;play.setAttribute('aria-label','Play the transformation');}
+    function paint(body,items=[]) {
+      scene.innerHTML=body;
+      const seen=new Set();
+      for(const item of items){
+        seen.add(item.key);let b=buttons.get(item.key);
+        if(!b){b=document.createElement('button');b.type='button';b.dataset.key=item.key;objects.appendChild(b);buttons.set(item.key,b);}
+        b.className=`piece ${item.kind||'token'}${drag?.key===item.key?' dragging':''}`;
+        b.style.left=`${item.x}px`;b.style.top=`${item.y}px`;
+        b.setAttribute('aria-label',item.label);
+        if(item.selected!==undefined)b.setAttribute('aria-pressed',String(item.selected));
+        const art=item.art??svg(shape(item.shape||'circle',24,24,11,item.color||C[0]));
+        if(b.dataset.art!==art){b.innerHTML=art;b.dataset.art=art;}
+      }
+      for(const [key,b] of buttons)if(!seen.has(key)){b.remove();buttons.delete(key);}
+    }
+    function render(){spec.render(api);range.value=String(clamp(spec.progress())*1000);range.setAttribute('aria-valuetext',spec.describe());}
+    function changed(){announce(spec.describe());MotionBridge.changed();}
+    function tone(index=0){
+      if(!enabled||!audio)return;
+      const time=audio.currentTime,osc=audio.createOscillator(),gain=audio.createGain();
+      osc.frequency.value=[261.63,329.63,392,523.25][Math.abs(index)%4];
+      gain.gain.setValueAtTime(.0001,time);gain.gain.exponentialRampToValueAtTime(.045,time+.015);gain.gain.exponentialRampToValueAtTime(.0001,time+.38);
+      osc.connect(gain);gain.connect(audio.destination);osc.start(time);osc.stop(time+.4);osc.onended=()=>{osc.disconnect();gain.disconnect();};
+    }
+    function tween(from,to,setter,duration=600,after=null){
+      stop();
+      if(reduced||Math.abs(to-from)<1e-8){setter(to);render();after?.();changed();return;}
+      animation={from,to,setter,start:performance.now(),duration,after};
+      play.innerHTML=icons.pause;play.setAttribute('aria-label','Pause the transformation');
+      const tick=now=>{
+        if(!animation)return;const a=animation,t=clamp((now-a.start)/a.duration);
+        a.setter(t===1?a.to:a.from+(a.to-a.from)*smooth(t));render();
+        if(t===1){stop();a.after?.();changed();}else frame=requestAnimationFrame(tick);
+      };frame=requestAnimationFrame(tick);
+    }
+    function cancelDrag(){if(!drag)return;const old=drag;drag=null;spec.cancel?.(old);try{old.button.releasePointerCapture(old.pointer);}catch{}render();}
+    function point(event){const r=stage.getBoundingClientRect();return{x:event.clientX-r.left,y:event.clientY-r.top};}
+    objects.addEventListener('pointerdown',event=>{
+      const button=event.target.closest('button[data-key]');if(!button||drag||event.button!==0)return;
+      stop();suppress=null;const p=point(event),key=button.dataset.key;
+      const detail=spec.down?.(key,p);if(!detail)return;
+      drag={...detail,key,button,pointer:event.pointerId,start:p,moved:false};
+      button.setPointerCapture(event.pointerId);render();
+    });
+    objects.addEventListener('pointermove',event=>{
+      if(!drag||drag.pointer!==event.pointerId)return;const p=point(event);
+      if(!drag.moved&&Math.hypot(p.x-drag.start.x,p.y-drag.start.y)<3)return;
+      drag.moved=true;spec.move?.(drag,p);render();
+    });
+    objects.addEventListener('pointerup',event=>{
+      if(!drag||drag.pointer!==event.pointerId)return;const ended=drag;drag=null;
+      try{ended.button.releasePointerCapture(ended.pointer);}catch{}
+      if(ended.moved){suppress=ended.key;spec.up?.(ended,point(event));render();changed();MotionBridge.explored();}
+    });
+    for(const name of ['pointercancel','lostpointercapture'])objects.addEventListener(name,event=>{if(drag?.pointer===event.pointerId){cancelDrag();changed();}});
+    objects.addEventListener('click',event=>{
+      const button=event.target.closest('button[data-key]');if(!button)return;
+      if(event.detail>0&&suppress===button.dataset.key){suppress=null;return;}
+      suppress=null;stop();spec.activate?.(button.dataset.key);render();changed();MotionBridge.explored();
+    });
+    objects.addEventListener('keydown',event=>{
+      const button=event.target.closest('button[data-key]');if(!button||!['ArrowLeft','ArrowRight','ArrowUp','ArrowDown'].includes(event.key))return;
+      if(spec.nudge){event.preventDefault();cancelDrag();stop();spec.nudge(button.dataset.key,['ArrowRight','ArrowUp'].includes(event.key)?1:-1,event.key);render();changed();}
+    });
+    play.addEventListener('click',()=>{cancelDrag();if(animation){stop();changed();return;}spec.play();render();MotionBridge.explored();});
+    $('rewind').addEventListener('click',()=>{cancelDrag();stop();spec.rewind();render();changed();});
+    $('example').addEventListener('click',()=>{cancelDrag();stop();spec.example();render();changed();tone(2);});
+    range.addEventListener('input',()=>{const p=Number(range.value)/1000;cancelDrag();stop();spec.scrub(p);render();});
+    range.addEventListener('change',()=>{spec.settle?.();render();changed();MotionBridge.explored();});
+    range.addEventListener('keydown',event=>{
+      if(!spec.step||!['ArrowLeft','ArrowRight','ArrowUp','ArrowDown'].includes(event.key))return;
+      event.preventDefault();cancelDrag();stop();spec.step(['ArrowRight','ArrowUp'].includes(event.key)?1:-1);render();changed();
+    });
+    $('sound').addEventListener('click',async()=>{
+      if(enabled){enabled=false;audio?.suspend();}else{const Audio=window.AudioContext||window.webkitAudioContext;if(!Audio){announce('Optional sound is unavailable.');return;}try{audio||=new Audio();await audio.resume();enabled=true;tone(0);}catch{announce('Optional sound could not start.');return;}}
+      $('sound').setAttribute('aria-pressed',String(enabled));$('sound').setAttribute('aria-label',enabled?'Mute optional sound':'Enable optional sound');$('sound').innerHTML=icons[enabled?'sound':'silent'];
+    });
+    function pause(){cancelDrag();stop();if(enabled){enabled=false;audio?.suspend();$('sound').innerHTML=icons.silent;$('sound').setAttribute('aria-pressed','false');$('sound').setAttribute('aria-label','Enable optional sound');}}
+    function resize(){cancelDrag();const r=stage.getBoundingClientRect();w=Math.max(260,r.width);h=Math.max(370,r.height);scene.setAttribute('viewBox',`0 0 ${w} ${h}`);render();}
+    const api={get w(){return w;},get h(){return h;},get reduced(){return reduced;},paint,render,tween,stop,changed,tone,announce,
+      examples(index,count){$('example-progress').innerHTML=Array.from({length:count},(_,i)=>`<span class="example-dot${i===index?' active':''}"></span>`).join('');},
+      start(){stop();new ResizeObserver(resize).observe(stage);resize();MotionBridge.connect({snapshot:spec.snapshot,restore(value){pause();spec.restore(value);render();},pause});}
+    };
+    document.addEventListener('visibilitychange',()=>{if(document.hidden){pause();changed();}});
+    window.addEventListener('keydown',event=>{if(event.key==='Escape'){cancelDrag();stop();spec.escape?.();render();changed();}});
+    matchMedia('(prefers-reduced-motion: reduce)').addEventListener('change',event=>{reduced=event.matches;if(reduced){pause();spec.settle?.();render();changed();}});
+    return api;
+  }
+  return {C,shapes,clamp,smooth,f,svg,shape,create};
+})();
+</script>
+<script>/* Two relations compose as C = B A, with destination rows and source columns. */
+const ThroughModel = (() => {
+  const n=3,blank=()=>Array.from({length:n},()=>Array(n).fill(0));
+  const cases=[{a:[[0,0],[0,1],[1,1],[2,2]],b:[[0,2],[1,2],[2,0]]},{a:[[0,1],[1,2],[2,0]],b:[[0,2],[1,0],[2,1]]},{a:[[0,0],[0,1],[0,2],[1,2],[2,0]],b:[[0,0],[1,0],[2,0],[2,2]]}];
+  function create(seed=0){const c=cases[seed%cases.length],s={version:1,seed,a:blank(),b:blank(),focus:[0,seed%cases.length===1?0:seed%cases.length===2?0:2],selected:null,progress:0,heat:false};for(const [i,j] of c.a)s.a[j][i]=1;for(const [i,j] of c.b)s.b[j][i]=1;return s;}
+  const witnesses=(s,src,dst)=>Array.from({length:n},(_,k)=>k).filter(k=>s.a[k][src]&&s.b[dst][k]);
+  const product=s=>Array.from({length:n},(_,r)=>Array.from({length:n},(_,c)=>Array.from({length:n},(_,k)=>s.b[r][k]*s.a[k][c]).reduce((x,y)=>x+y,0)));
+  function toggle(s,layer,src,dst){const m=layer===0?s.a:s.b;m[dst][src]=1-m[dst][src];s.selected=null;s.progress=0;}
+  function restore(v){
+    const valid=i=>Number.isInteger(i)&&i>=0&&i<n,mat=m=>Array.isArray(m)&&m.length===n&&m.every(row=>Array.isArray(row)&&row.length===n&&row.every(x=>x===0||x===1));
+    if(v?.version!==1||!Number.isSafeInteger(v.seed)||v.seed<0||!mat(v.a)||!mat(v.b)||!Number.isFinite(v.progress)||v.progress<0||v.progress>1||typeof v.heat!=='boolean'||!Array.isArray(v.focus)||v.focus.length!==2||!v.focus.every(valid)||(v.selected!==null&&(!Array.isArray(v.selected)||v.selected.length!==2||!v.selected.every(valid))))return create();
+    return{version:1,seed:v.seed,a:v.a.map(r=>r.slice()),b:v.b.map(r=>r.slice()),focus:v.focus.slice(),selected:v.selected?.slice()??null,progress:v.progress,heat:v.heat};
+  }
+  return{n,cases,create,witnesses,product,toggle,restore};
+})();
+if(typeof module!=='undefined')module.exports=ThroughModel;
+</script>
+<script>/* Shared geometry only. Matrices consistently use destination rows, source columns. */
+const RelationBoard = (() => {
+  const K=MotionKit,{f,shape,svg,C}=K;
+  function layout(w,h,n){
+    const wide=w>=620,cell=wide?Math.min(52,(w*.46-16)/(n+1)):48;
+    const size=(n+1)*cell,mx=wide?w*.73-size/2:(w-size)/2;
+    const my=wide?h*.43-size/2:h*.44;
+    return{wide,cell,mx,my,size,graph:{x:wide?0:16,y:wide?h*.08:8,w:wide?w*.47:w-32,h:wide?h*.69:h*.36},toolsY:h*.92};
+  }
+  const cellPoint=(g,row,col)=>({x:g.mx+(col+1.5)*g.cell,y:g.my+(row+1.5)*g.cell});
+  const sourcePoint=(g,col)=>({x:g.mx+(col+1.5)*g.cell,y:g.my+g.cell*.5});
+  const targetPoint=(g,row)=>({x:g.mx+g.cell*.5,y:g.my+(row+1.5)*g.cell});
+  function headers(g,n){
+    let body='';for(let i=0;i<n;i++){const a=sourcePoint(g,i),b=targetPoint(g,i);body+=shape(K.shapes[i],a.x,a.y,8,C[i])+shape(K.shapes[i],b.x,b.y,8,C[i]);}
+    return body;
+  }
+  function ringNodes(box,n){
+    const r=Math.min(box.w*.32,box.h*.28),cx=box.x+box.w/2,cy=box.y+box.h*.53;
+    return Array.from({length:n},(_,i)=>{const a=-Math.PI/2+2*Math.PI*i/n;return{x:cx+r*Math.cos(a),y:cy+r*Math.sin(a)};});
+  }
+  function edge(a,b,{loop=false,curved=false,directed=false}={}){
+    let p0,p1,p2,p3;
+    if(loop){p0={x:a.x-13,y:a.y-16};p1={x:a.x-60,y:a.y-76};p2={x:a.x+60,y:a.y-76};p3={x:a.x+13,y:a.y-16};}
+    else{
+      const dx=b.x-a.x,dy=b.y-a.y,len=Math.hypot(dx,dy)||1,ux=dx/len,uy=dy/len,bend=curved?25:0;
+      p0={x:a.x+ux*22,y:a.y+uy*22};p3={x:b.x-ux*24,y:b.y-uy*24};
+      p1={x:p0.x+(p3.x-p0.x)/3-uy*bend,y:p0.y+(p3.y-p0.y)/3+ux*bend};
+      p2={x:p0.x+2*(p3.x-p0.x)/3-uy*bend,y:p0.y+2*(p3.y-p0.y)/3+ux*bend};
+    }
+    const path=`M${f(p0.x)} ${f(p0.y)}C${f(p1.x)} ${f(p1.y)} ${f(p2.x)} ${f(p2.y)} ${f(p3.x)} ${f(p3.y)}`;
+    function point(t){const q=1-t;return{x:q*q*q*p0.x+3*q*q*t*p1.x+3*q*t*t*p2.x+t*t*t*p3.x,y:q*q*q*p0.y+3*q*q*t*p1.y+3*q*t*t*p2.y+t*t*t*p3.y};}
+    let arrow='';if(directed){const near=point(.90),dx=p3.x-near.x,dy=p3.y-near.y,len=Math.hypot(dx,dy)||1,ux=dx/len,uy=dy/len;arrow=`M${f(p3.x)} ${f(p3.y)}L${f(p3.x-ux*9-uy*4)} ${f(p3.y-uy*9+ux*4)}L${f(p3.x-ux*9+uy*4)} ${f(p3.y-uy*9-ux*4)}Z`;}
+    return{path,point,arrow};
+  }
+  function line(e,color=C[1],opacity=.5,width=1.5){return `<path d="${e.path}" fill="none" stroke="${color}" stroke-opacity="${opacity}" stroke-width="${width}"/>${e.arrow?`<path d="${e.arrow}" fill="${color}" fill-opacity="${opacity}"/>`:''}`;}
+  const bead=(p,color=C[0],r=4)=>`<circle cx="${f(p.x)}" cy="${f(p.y)}" r="${r+4}" fill="${color}" fill-opacity=".09"/><circle cx="${f(p.x)}" cy="${f(p.y)}" r="${r}" fill="${color}"/>`;
+  function matrixTrace(g,row,col,t){
+    const a=sourcePoint(g,col),b=cellPoint(g,row,col),c=targetPoint(g,row),p=t<.5?{x:a.x,y:a.y+(b.y-a.y)*t*2}:{x:b.x+(c.x-b.x)*(t-.5)*2,y:b.y};
+    return `<path d="M${f(a.x)} ${f(a.y)}V${f(b.y)}H${f(c.x)}" fill="none" stroke="${C[col]}" stroke-opacity=".28" stroke-width="1.4"/>`+bead(p,C[col],3.3);
+  }
+  function presence(on,color,selected=false){return svg(`<rect x="3" y="3" width="42" height="42" rx="8" fill="${color}" fill-opacity="${on?.11:.015}" stroke="${selected?'#eedbb6':'#648896'}" stroke-opacity="${selected?.8:.22}"/>${on?`<circle cx="24" cy="24" r="5" fill="${color}"/>`:''}`);}
+  return{layout,cellPoint,sourcePoint,targetPoint,headers,ringNodes,edge,line,bead,matrixTrace,presence};
+})();
+</script>
+<script>(() => {
+  const M=ThroughModel,K=MotionKit,R=RelationBoard;let s=M.create(),nodes=[],ghost=null;
+  const dotIcon=K.svg(K.shape('circle',14,16,4,K.C[0])+K.shape('square',32,16,4,K.C[1])+K.shape('triangle',24,33,4,K.C[2]));
+  const heatIcon=K.svg('<rect x="8" y="10" width="12" height="12" rx="3" fill="#83d6d1" opacity=".2"/><rect x="25" y="10" width="12" height="12" rx="3" fill="#83d6d1" opacity=".45"/><rect x="8" y="27" width="12" height="12" rx="3" fill="#83d6d1" opacity=".65"/><rect x="25" y="27" width="12" height="12" rx="3" fill="#83d6d1"/>');
+  const set=p=>{s.progress=p;};
+  function describe(){const [a,b]=s.focus,ws=M.witnesses(s,a,b);return `${ws.length} two-step ${ws.length===1?'route':'routes'} from ${K.shapes[a]} to ${K.shapes[b]}${ws.length?`, through ${ws.map(k=>K.shapes[k]).join(' or ')}`:''}. Matrix columns are sources and rows are destinations. Select a result cell to inspect its routes; change the connecting lines to change the result.`;}
+  function nearest(p){let best=null;nodes.forEach((column,l)=>column.forEach((q,i)=>{const d=Math.hypot(q.x-p.x,q.y-p.y);if(d<34&&(!best||d<best.d))best={l,i,d};}));return best?[best.l,best.i]:null;}
+  function connect(a,b){if(b[0]===a[0]+1){M.toggle(s,a[0],a[1],b[1]);view.tone(b[1]);}else if(a[0]===0&&b[0]===2){s.focus=[a[1],b[1]];s.selected=null;s.progress=0;}else s.selected=b;}
+  function cellArt(witness,focused){
+    let body=`<rect x="3" y="3" width="42" height="42" rx="8" fill="#83d6d1" fill-opacity="${s.heat?witness.length/3*.62:.025}" stroke="${focused?'#eedbb6':'#648896'}" stroke-opacity="${focused?.85:.22}"/>`;
+    if(!s.heat)witness.forEach((k,i)=>{const x=witness.length===1?24:24+(i-(witness.length-1)/2)*12;body+=K.shape(K.shapes[k],x,24,witness.length===1?6:4.2,K.C[k]);});
+    return K.svg(body);
+  }
+  function render(v){
+    const g=R.layout(v.w,v.h,3),b=g.graph;
+    nodes=Array.from({length:3},(_,l)=>Array.from({length:3},(_,i)=>({x:b.x+b.w*(.13+l*.37),y:b.y+b.h*(.17+i*.34)})));
+    const [src,dst]=s.focus,ws=M.witnesses(s,src,dst);let body=R.headers(g,3),items=[];
+    for(let layer=0;layer<2;layer++){const mat=layer===0?s.a:s.b;for(let a=0;a<3;a++)for(let z=0;z<3;z++)if(mat[z][a]){
+      const active=layer===0?a===src&&ws.includes(z):z===dst&&ws.includes(a);
+      const e=R.edge(nodes[layer][a],nodes[layer+1][z],{directed:true});
+      body+=R.line(e,active?K.C[layer===0?z:a]:'#648896',active?.9:.3,active?1.9:1.1);
+    }}
+    if(ghost){const p=nodes[ghost.src[0]][ghost.src[1]];body+=`<path d="M${K.f(p.x)} ${K.f(p.y)}L${K.f(ghost.x)} ${K.f(ghost.y)}" fill="none" stroke="#eedbb6" stroke-opacity=".6" stroke-dasharray="3 6"/>`;}
+    nodes.forEach((column,l)=>column.forEach((p,i)=>{
+      const highlighted=l===1&&ws.includes(i);
+      if(highlighted)body+=`<circle cx="${K.f(p.x)}" cy="${K.f(p.y)}" r="26" fill="none" stroke="${K.C[i]}" stroke-opacity=".6"/>`;
+      items.push({key:`node-${l}-${i}`,kind:'node',...p,shape:K.shapes[i],color:K.C[i],selected:s.selected?.[0]===l&&s.selected?.[1]===i,label:`${['Source','Intermediate','Destination'][l]} ${K.shapes[i]}. Select or drag to a vertex in the next column to edit a connection.`});
+    }));
+    for(const middle of ws){const first=R.edge(nodes[0][src],nodes[1][middle],{directed:true}),second=R.edge(nodes[1][middle],nodes[2][dst],{directed:true});const p=s.progress<.5?first.point(s.progress*2):second.point((s.progress-.5)*2);if(s.progress>0&&s.progress<1)body+=R.bead(p,K.C[middle],4);}
+    for(let row=0;row<3;row++)for(let col=0;col<3;col++){const witness=M.witnesses(s,col,row);items.push({key:`cell-${row}-${col}`,kind:'cell',...R.cellPoint(g,row,col),art:cellArt(witness,src===col&&dst===row),selected:src===col&&dst===row,label:`Inspect ${witness.length} two-step routes from ${K.shapes[col]} to ${K.shapes[row]}${witness.length?', through '+witness.map(k=>K.shapes[k]).join(' or '):''}. This result is computed from the connections.`});}
+    items.push({key:'mode-witnesses',kind:'mode',x:v.w/2-40,y:g.toolsY,art:dotIcon,selected:!s.heat,label:'Show the intermediate shapes, one for each two-step route.'},{key:'mode-heat',kind:'mode',x:v.w/2+40,y:g.toolsY,art:heatIcon,selected:s.heat,label:'Show route counts as brightness. Empty means zero; maximum brightness means three routes.'});
+    v.paint(body,items);v.examples(s.seed%M.cases.length,M.cases.length);
+  }
+  const view=K.create({title:'Through',description:'Three columns show source, intermediate, and destination copies of the same three shapes. Connections between adjacent columns are editable by selecting endpoints or dragging. Every intermediate shape that completes a two-step route contributes once to the result matrix. Tap a result cell to trace all its alternatives. Switch between intermediate-shape marks and brightness. The matrix is computed, so editing a result means changing the connections that produce it.',glyph:dotIcon,render,describe,progress:()=>s.progress,snapshot:()=>JSON.parse(JSON.stringify(s)),restore:v=>{s=M.restore(v);ghost=null;},scrub:set,
+    play(){s.progress=0;view.tween(0,1,set,2400);},rewind(){view.tween(s.progress,0,set,550);},example(){s=M.create(s.seed+1);ghost=null;},
+    activate(key){if(key.startsWith('cell-')){const [,r,c]=key.split('-').map(Number);s.focus=[c,r];s.selected=null;s.progress=0;view.tween(0,1,set,1600);}else if(key.startsWith('node-')){const [,l,i]=key.split('-').map(Number);if(s.selected)connect(s.selected,[l,i]);else s.selected=[l,i];}else if(key.startsWith('mode-'))s.heat=key==='mode-heat';},
+    down(key){if(key.startsWith('node-')){const [,l,i]=key.split('-').map(Number);return{src:[l,i],original:s.selected?.slice()??null};}return null;},move(d,p){ghost={src:d.src,...p};},up(d,p){ghost=null;const target=nearest(p);if(target)connect(d.src,target);},cancel(d){ghost=null;s.selected=d.original;},escape(){s.selected=null;ghost=null;}
+  });view.start();
+})();
+</script>
+</body>
+</html>

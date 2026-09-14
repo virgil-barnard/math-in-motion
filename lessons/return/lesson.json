@@ -1,0 +1,20 @@
+{
+  "contract": 1,
+  "id": "return",
+  "title": "Return",
+  "summary": "Turn the shapes and discover when they return together.",
+  "order": 3,
+  "builds_on": [
+    "composition"
+  ],
+  "related": [
+    "undo"
+  ],
+  "contexts": [
+    "number-theory",
+    "groups",
+    "transformations"
+  ],
+  "entry": "entry.html",
+  "glyph": "glyph.svg"
+}

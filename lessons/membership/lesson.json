@@ -1,0 +1,22 @@
+{
+  "contract": 1,
+  "id": "membership",
+  "title": "Membership",
+  "summary": "Discover belonging to one, both, or neither.",
+  "order": 1,
+  "builds_on": [
+    "correspondence"
+  ],
+  "related": [
+    "same"
+  ],
+  "contexts": [
+    "sets",
+    "logic"
+  ],
+  "entry": "entry.html",
+  "glyph": "glyph.svg",
+  "checks": [
+    "../../tests/models.cjs"
+  ]
+}

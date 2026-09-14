@@ -1,0 +1,264 @@
+<!doctype html>
+<html lang="en" data-lesson="fold">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"><meta name="theme-color" content="#0a1420"><title>Fold · Mathematics in Motion</title><style>:root{color-scheme:dark;--bg:#0a1420;--ink:#eedbb6;--aqua:#83d6d1;--violet:#b7a4e8;--line:#648896;--soft:#aec4cb}
+*{box-sizing:border-box}html,body{margin:0;min-width:280px;min-height:100%;background:var(--bg)}body{color:var(--ink);font-family:system-ui,sans-serif;background:radial-gradient(ellipse at 50% 35%,#152c3b, #0a1420 70%);-webkit-tap-highlight-color:transparent}button,input{font:inherit}button{border:0;background:none;color:inherit;cursor:pointer;padding:0;touch-action:manipulation;-webkit-user-select:none;user-select:none}button:focus-visible,input:focus-visible{outline:2px solid #f5e5bb;outline-offset:4px}button svg{width:100%;height:100%;pointer-events:none}svg{display:block}button:active{filter:brightness(1.2)}[hidden]{display:none!important}
+.sr-only{position:absolute!important;width:1px!important;height:1px!important;padding:0!important;margin:-1px!important;overflow:hidden!important;clip-path:inset(50%)!important;white-space:nowrap!important;border:0!important}
+#lesson-app{width:min(100%,1000px);height:100vh;height:100svh;min-height:570px;max-height:1000px;margin:auto;display:grid;grid-template-rows:64px minmax(370px,1fr) 132px;padding:env(safe-area-inset-top) 18px env(safe-area-inset-bottom)}
+.lesson-header{display:flex;align-items:center;justify-content:center;position:relative}.lesson-glyph{width:34px;height:34px;opacity:.75}.lesson-header #sound{position:absolute;right:0;width:46px;height:46px;padding:13px;opacity:.6;border-radius:50%}.lesson-header #sound[aria-pressed=true]{opacity:1}
+#stage{position:relative;min-height:370px;isolation:isolate}#scene,#objects{position:absolute;inset:0;width:100%;height:100%}#scene{pointer-events:none;overflow:visible}#objects{pointer-events:none}.piece{position:absolute;transform:translate(-50%,-50%);width:48px;height:48px;border-radius:50%;pointer-events:auto;touch-action:none;display:grid;place-items:center;z-index:2;cursor:grab}.piece svg{width:44px;height:44px;filter:drop-shadow(0 0 9px #eedbb61a)}.piece:hover{background:#83d6d10b}.piece:active,.piece.dragging{cursor:grabbing;background:#eedbb610}.piece.choice{width:64px;height:56px;border-radius:14px;cursor:pointer;background:#83d6d108;border:1px solid #64889655}.piece.choice[aria-pressed=true]{border-color:#eedbb6aa;background:#eedbb60d}.piece.choice svg{width:48px;height:42px;filter:none}.piece.gate-target{width:78%;height:70px;border-radius:15px;background:transparent;z-index:1}
+.lesson-footer{display:flex;flex-direction:column;justify-content:center;gap:12px;padding:0 max(8px,5%)}.transport{display:flex;align-items:center;gap:18px}.round-control{width:48px;height:48px;flex:none;border:1px solid #afc3ca40;border-radius:50%;padding:15px;background:#83d6d108}.quiet-control{width:46px;height:46px;flex:none;border-radius:50%;padding:13px;opacity:.7}.quiet-control:hover{background:#83d6d10d;opacity:1}.tools{display:flex;align-items:center;justify-content:center;gap:22px}.example-progress{display:flex;gap:10px;min-width:80px;justify-content:center;align-items:center}.example-dot{width:4px;height:4px;border-radius:50%;background:#64889666}.example-dot.active{background:var(--ink);box-shadow:0 0 0 3px #eedbb619}
+input[type=range]{width:100%;min-width:0;height:48px;margin:0;background:transparent;accent-color:var(--aqua);cursor:ew-resize}
+.embedded #lesson-app{grid-template-rows:42px minmax(370px,1fr) 128px;min-height:540px}.embedded .lesson-glyph{opacity:.35;width:26px;height:26px}
+@media(max-width:560px){#lesson-app{padding-left:10px;padding-right:10px}.lesson-footer{padding:0 12px}.transport{gap:12px}}
+@media(prefers-reduced-motion:reduce){*,*:before,*:after{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
+
+#fold-world{position:absolute;inset:0;width:100%;height:100%;transform-style:preserve-3d;transform:translateZ(0);pointer-events:none;z-index:1;overflow:visible;opacity:1;filter:none;isolation:auto}
+.fold-face{position:absolute;left:0;top:0;transform-origin:0 0;backface-visibility:visible;display:grid;place-items:center;border:1px solid #c5e0df99;border-radius:1px;box-shadow:inset 0 0 0 2px #0715200a;pointer-events:none}
+.fold-face svg{width:28%;height:28%;opacity:.88;pointer-events:none}
+#objects{z-index:3}.piece.orbit-pad{width:100%;height:84%;z-index:1;border-radius:22px;background:transparent!important;filter:none;cursor:grab}.piece.fold-grip{z-index:4;background:#0a14205c;box-shadow:0 0 23px #83d6d125}.piece.fold-grip svg{filter:none}.piece.camera{width:52px;height:48px;z-index:4;border:1px solid #64889644;border-radius:15px;cursor:pointer}.piece.camera svg{width:31px;height:31px;filter:none}.piece.camera:hover{background:#83d6d10b}
+</style></head>
+<body>
+<main id="lesson-app">
+  <h1 id="lesson-title" class="sr-only"></h1>
+  <header class="lesson-header"><div id="lesson-glyph" class="lesson-glyph" aria-hidden="true"></div><button id="sound" type="button" aria-label="Enable optional sound" aria-pressed="false"></button></header>
+  <section id="stage" aria-labelledby="lesson-title" aria-describedby="lesson-description"><svg id="scene" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"></svg><div id="objects"></div></section>
+  <footer class="lesson-footer">
+    <div class="transport"><button id="play" class="round-control" type="button" aria-label="Play the transformation"></button><label for="timeline" class="sr-only">Inspect the transformation</label><input id="timeline" type="range" min="0" max="1000" step="1" value="0"><button id="rewind" class="quiet-control" type="button" aria-label="Return to the beginning"></button></div>
+    <div class="tools"><div id="example-progress" class="example-progress" aria-hidden="true"></div><button id="example" class="quiet-control" type="button" aria-label="Explore another example"></button></div>
+  </footer>
+  <p id="lesson-description" class="sr-only"></p><p id="status" class="sr-only" aria-live="polite" aria-atomic="true"></p>
+</main>
+
+<script>const foldWorld=document.createElement("div");foldWorld.id="fold-world";document.getElementById("stage").appendChild(foldWorld);</script>
+<script>/* Portable document contract v1. Parent identity is checked; no network access. */
+const MotionBridge = (() => {
+  const channel = 'mathematics-in-motion/v1';
+  let hooks = null;
+  const lesson = document.documentElement.dataset.lesson;
+  const embedded = window.parent !== window;
+  if (embedded) document.documentElement.classList.add('embedded');
+  function send(type, extra = {}) {
+    if (embedded) window.parent.postMessage({channel, lesson, type, ...extra}, '*');
+  }
+  function changed() { if (hooks) send('state', {state: hooks.snapshot()}); }
+  window.addEventListener('message', event => {
+    if (!embedded || event.source !== window.parent || event.data?.channel !== channel || !hooks) return;
+    const data = event.data;
+    if (data.type === 'restore') {
+      if (data.state) hooks.restore(data.state);
+      changed();
+    } else if (data.type === 'pause') {
+      hooks.pause();
+      send('paused', {request: data.request, state: hooks.snapshot()});
+    }
+  });
+  return {
+    connect(value) { hooks = value; send('ready'); },
+    changed,
+    explored() { send('explored'); }
+  };
+})();
+</script>
+<script>/* Small optional author kit. Lessons own models, state, geometry, and gestures. */
+const MotionKit = (() => {
+  const C = ['#eedbb6','#83d6d1','#b7a4e8','#d8a78b'];
+  const shapes = ['circle','square','triangle','diamond'];
+  const clamp = (x,a=0,b=1) => Math.max(a,Math.min(b,x));
+  const smooth = x => x*x*(3-2*x);
+  const f = x => Number(x).toFixed(3);
+  const svg = body => `<svg viewBox="0 0 48 48" aria-hidden="true" xmlns="http://www.w3.org/2000/svg">${body}</svg>`;
+  function shape(kind,x,y,r,color=C[0],filled=true,opacity=1) {
+    const a=`fill="${filled?color:'none'}" stroke="${color}" stroke-width="${filled?.7:1.2}" opacity="${opacity}" stroke-linejoin="round"`;
+    if(kind==='circle')return `<circle cx="${f(x)}" cy="${f(y)}" r="${r}" ${a}/>`;
+    if(kind==='square')return `<rect x="${f(x-r)}" y="${f(y-r)}" width="${2*r}" height="${2*r}" rx="2.5" ${a}/>`;
+    if(kind==='triangle')return `<path d="M${f(x)} ${f(y-r*1.15)}L${f(x+r)} ${f(y+r*.8)}L${f(x-r)} ${f(y+r*.8)}Z" ${a}/>`;
+    return `<path d="M${f(x)} ${f(y-r*1.2)}L${f(x+r)} ${f(y)}L${f(x)} ${f(y+r*1.2)}L${f(x-r)} ${f(y)}Z" ${a}/>`;
+  }
+  const icons={
+    play:svg('<path d="m18 10 20 14-20 14Z" fill="currentColor"/>'),
+    pause:svg('<path d="M18 12v24M30 12v24" stroke="currentColor" stroke-width="4" stroke-linecap="round"/>'),
+    rewind:svg('<path d="M12 12a16 16 0 1 1-3 20M12 3v11H2" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>'),
+    example:svg('<rect x="5" y="5" width="27" height="27" rx="8" fill="none" stroke="currentColor" opacity=".45"/><rect x="16" y="16" width="27" height="27" rx="8" fill="#102230" stroke="currentColor"/><circle cx="24" cy="24" r="2" fill="currentColor"/><circle cx="35" cy="35" r="2" fill="currentColor"/>'),
+    silent:svg('<path d="M7 18h7l10-8v28l-10-8H7ZM33 18l10 12M43 18 33 30" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>'),
+    sound:svg('<path d="M7 18h7l10-8v28l-10-8H7ZM32 17q7 7 0 14M38 10q13 14 0 28" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>')
+  };
+  function create(spec) {
+    const $=id=>document.getElementById(id);
+    const stage=$('stage'),scene=$('scene'),objects=$('objects'),range=$('timeline'),play=$('play');
+    let w=640,h=500,frame=0,animation=null,drag=null,suppress=null,lastStatus='';
+    let reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
+    let audio=null,enabled=false;
+    const buttons=new Map();
+    $('lesson-title').textContent=spec.title;
+    $('lesson-description').textContent=spec.description;
+    $('lesson-glyph').innerHTML=spec.glyph;
+    $('rewind').innerHTML=icons.rewind;$('example').innerHTML=icons.example;$('sound').innerHTML=icons.silent;
+    function announce(text) {if(text!==lastStatus){$('status').textContent=text;lastStatus=text;}}
+    function stop(){animation=null;cancelAnimationFrame(frame);frame=0;play.innerHTML=icons.play;play.setAttribute('aria-label','Play the transformation');}
+    function paint(body,items=[]) {
+      scene.innerHTML=body;
+      const seen=new Set();
+      for(const item of items){
+        seen.add(item.key);let b=buttons.get(item.key);
+        if(!b){b=document.createElement('button');b.type='button';b.dataset.key=item.key;objects.appendChild(b);buttons.set(item.key,b);}
+        b.className=`piece ${item.kind||'token'}${drag?.key===item.key?' dragging':''}`;
+        b.style.left=`${item.x}px`;b.style.top=`${item.y}px`;
+        b.setAttribute('aria-label',item.label);
+        if(item.selected!==undefined)b.setAttribute('aria-pressed',String(item.selected));
+        const art=item.art??svg(shape(item.shape||'circle',24,24,11,item.color||C[0]));
+        if(b.dataset.art!==art){b.innerHTML=art;b.dataset.art=art;}
+      }
+      for(const [key,b] of buttons)if(!seen.has(key)){b.remove();buttons.delete(key);}
+    }
+    function render(){spec.render(api);range.value=String(clamp(spec.progress())*1000);range.setAttribute('aria-valuetext',spec.describe());}
+    function changed(){announce(spec.describe());MotionBridge.changed();}
+    function tone(index=0){
+      if(!enabled||!audio)return;
+      const time=audio.currentTime,osc=audio.createOscillator(),gain=audio.createGain();
+      osc.frequency.value=[261.63,329.63,392,523.25][Math.abs(index)%4];
+      gain.gain.setValueAtTime(.0001,time);gain.gain.exponentialRampToValueAtTime(.045,time+.015);gain.gain.exponentialRampToValueAtTime(.0001,time+.38);
+      osc.connect(gain);gain.connect(audio.destination);osc.start(time);osc.stop(time+.4);osc.onended=()=>{osc.disconnect();gain.disconnect();};
+    }
+    function tween(from,to,setter,duration=600,after=null){
+      stop();
+      if(reduced||Math.abs(to-from)<1e-8){setter(to);render();after?.();changed();return;}
+      animation={from,to,setter,start:performance.now(),duration,after};
+      play.innerHTML=icons.pause;play.setAttribute('aria-label','Pause the transformation');
+      const tick=now=>{
+        if(!animation)return;const a=animation,t=clamp((now-a.start)/a.duration);
+        a.setter(t===1?a.to:a.from+(a.to-a.from)*smooth(t));render();
+        if(t===1){stop();a.after?.();changed();}else frame=requestAnimationFrame(tick);
+      };frame=requestAnimationFrame(tick);
+    }
+    function cancelDrag(){if(!drag)return;const old=drag;drag=null;spec.cancel?.(old);try{old.button.releasePointerCapture(old.pointer);}catch{}render();}
+    function point(event){const r=stage.getBoundingClientRect();return{x:event.clientX-r.left,y:event.clientY-r.top};}
+    objects.addEventListener('pointerdown',event=>{
+      const button=event.target.closest('button[data-key]');if(!button||drag||event.button!==0)return;
+      stop();suppress=null;const p=point(event),key=button.dataset.key;
+      const detail=spec.down?.(key,p);if(!detail)return;
+      drag={...detail,key,button,pointer:event.pointerId,start:p,moved:false};
+      button.setPointerCapture(event.pointerId);render();
+    });
+    objects.addEventListener('pointermove',event=>{
+      if(!drag||drag.pointer!==event.pointerId)return;const p=point(event);
+      if(!drag.moved&&Math.hypot(p.x-drag.start.x,p.y-drag.start.y)<3)return;
+      drag.moved=true;spec.move?.(drag,p);render();
+    });
+    objects.addEventListener('pointerup',event=>{
+      if(!drag||drag.pointer!==event.pointerId)return;const ended=drag;drag=null;
+      try{ended.button.releasePointerCapture(ended.pointer);}catch{}
+      if(ended.moved){suppress=ended.key;spec.up?.(ended,point(event));render();changed();MotionBridge.explored();}
+    });
+    for(const name of ['pointercancel','lostpointercapture'])objects.addEventListener(name,event=>{if(drag?.pointer===event.pointerId){cancelDrag();changed();}});
+    objects.addEventListener('click',event=>{
+      const button=event.target.closest('button[data-key]');if(!button)return;
+      if(event.detail>0&&suppress===button.dataset.key){suppress=null;return;}
+      suppress=null;stop();spec.activate?.(button.dataset.key);render();changed();MotionBridge.explored();
+    });
+    objects.addEventListener('keydown',event=>{
+      const button=event.target.closest('button[data-key]');if(!button||!['ArrowLeft','ArrowRight','ArrowUp','ArrowDown'].includes(event.key))return;
+      if(spec.nudge){event.preventDefault();cancelDrag();stop();spec.nudge(button.dataset.key,['ArrowRight','ArrowUp'].includes(event.key)?1:-1,event.key);render();changed();}
+    });
+    play.addEventListener('click',()=>{cancelDrag();if(animation){stop();changed();return;}spec.play();render();MotionBridge.explored();});
+    $('rewind').addEventListener('click',()=>{cancelDrag();stop();spec.rewind();render();changed();});
+    $('example').addEventListener('click',()=>{cancelDrag();stop();spec.example();render();changed();tone(2);});
+    range.addEventListener('input',()=>{const p=Number(range.value)/1000;cancelDrag();stop();spec.scrub(p);render();});
+    range.addEventListener('change',()=>{spec.settle?.();render();changed();MotionBridge.explored();});
+    range.addEventListener('keydown',event=>{
+      if(!spec.step||!['ArrowLeft','ArrowRight','ArrowUp','ArrowDown'].includes(event.key))return;
+      event.preventDefault();cancelDrag();stop();spec.step(['ArrowRight','ArrowUp'].includes(event.key)?1:-1);render();changed();
+    });
+    $('sound').addEventListener('click',async()=>{
+      if(enabled){enabled=false;audio?.suspend();}else{const Audio=window.AudioContext||window.webkitAudioContext;if(!Audio){announce('Optional sound is unavailable.');return;}try{audio||=new Audio();await audio.resume();enabled=true;tone(0);}catch{announce('Optional sound could not start.');return;}}
+      $('sound').setAttribute('aria-pressed',String(enabled));$('sound').setAttribute('aria-label',enabled?'Mute optional sound':'Enable optional sound');$('sound').innerHTML=icons[enabled?'sound':'silent'];
+    });
+    function pause(){cancelDrag();stop();if(enabled){enabled=false;audio?.suspend();$('sound').innerHTML=icons.silent;$('sound').setAttribute('aria-pressed','false');$('sound').setAttribute('aria-label','Enable optional sound');}}
+    function resize(){cancelDrag();const r=stage.getBoundingClientRect();w=Math.max(260,r.width);h=Math.max(370,r.height);scene.setAttribute('viewBox',`0 0 ${w} ${h}`);render();}
+    const api={get w(){return w;},get h(){return h;},get reduced(){return reduced;},paint,render,tween,stop,changed,tone,announce,
+      examples(index,count){$('example-progress').innerHTML=Array.from({length:count},(_,i)=>`<span class="example-dot${i===index?' active':''}"></span>`).join('');},
+      start(){stop();new ResizeObserver(resize).observe(stage);resize();MotionBridge.connect({snapshot:spec.snapshot,restore(value){pause();spec.restore(value);render();},pause});}
+    };
+    document.addEventListener('visibilitychange',()=>{if(document.hidden){pause();changed();}});
+    window.addEventListener('keydown',event=>{if(event.key==='Escape'){cancelDrag();stop();spec.escape?.();render();changed();}});
+    matchMedia('(prefers-reduced-motion: reduce)').addEventListener('change',event=>{reduced=event.matches;if(reduced){pause();spec.settle?.();render();changed();}});
+    return api;
+  }
+  return {C,shapes,clamp,smooth,f,svg,shape,create};
+})();
+</script>
+<script>/* Rigid unit-square faces, rotated about exact shared edges. No physics engine. */
+const FoldModel = (() => {
+  const clamp=(x,a=0,b=1)=>Math.max(a,Math.min(b,x)),smooth=x=>{x=clamp(x);return x*x*(3-2*x);};
+  const create=(seed=0)=>({version:1,seed,progress:0,yaw:-.52,pitch:.75});
+  const sub=(a,b)=>a.map((x,i)=>x-b[i]);
+  const add=(a,b)=>a.map((x,i)=>x+b[i]);
+  const dot=(a,b)=>a.reduce((n,x,i)=>n+x*b[i],0);
+  const cross=(a,b)=>[a[1]*b[2]-a[2]*b[1],a[2]*b[0]-a[0]*b[2],a[0]*b[1]-a[1]*b[0]];
+  function rotateX(p,hinge,a){const q=sub(p,hinge),c=Math.cos(a),s=Math.sin(a);return add([q[0],c*q[1]-s*q[2],s*q[1]+c*q[2]],hinge);}
+  function rotateY(p,hinge,a){const q=sub(p,hinge),c=Math.cos(a),s=Math.sin(a);return add([c*q[0]+s*q[2],q[1],-s*q[0]+c*q[2]],hinge);}
+  const square=(x,y)=>[[x-.5,y-.5,0],[x+.5,y-.5,0],[x+.5,y+.5,0],[x-.5,y+.5,0]];
+  function pose(seed,progress){
+    const which=seed%3,p=clamp(progress),a=(which===2?smooth(p/.62):smooth(p))*Math.PI/2,b=which===2?smooth((p-.62)/.38)*Math.PI/2:0;
+    const faces=[{id:0,vertices:square(0,0)},{id:1,vertices:square(0,1).map(q=>rotateX(q,[0,.5,0],a))}];
+    if(which>0){faces.push({id:2,vertices:square(1,0).map(q=>rotateY(q,[.5,0,0],-a))},{id:3,vertices:square(0,-1).map(q=>rotateX(q,[0,-.5,0],-a))},{id:4,vertices:square(-1,0).map(q=>rotateY(q,[-.5,0,0],a))});}
+    if(which===2)faces.push({id:5,vertices:square(0,2).map(q=>rotateX(rotateX(q,[0,1.5,0],b),[0,.5,0],a))});
+    return faces;
+  }
+  function grip(seed,progress){const v=pose(seed,progress).at(seed%3===2?-1:1).vertices;return v[2].map((x,i)=>(x+v[3][i])/2);}
+  function camera(p,yaw,pitch){const c=Math.cos(yaw),s=Math.sin(yaw),y=s*p[0]+c*p[1];return[c*p[0]-s*p[1],-Math.sin(pitch)*y-Math.cos(pitch)*p[2],-Math.cos(pitch)*y+Math.sin(pitch)*p[2]];}
+  function frame(seed,yaw,pitch,w,h){
+    const xs=[],ys=[];for(let i=0;i<=80;i++)for(const face of pose(seed,i/80))for(const p of face.vertices){const q=camera(p,yaw,pitch);xs.push(q[0]);ys.push(q[1]);}
+    const loX=Math.min(...xs),hiX=Math.max(...xs),loY=Math.min(...ys),hiY=Math.max(...ys);
+    const scale=Math.min((w-76)/(hiX-loX),(h*.80-68)/(hiY-loY),150);
+    return{scale,x:w/2-(loX+hiX)/2*scale,y:h*.43-(loY+hiY)/2*scale};
+  }
+  function project(p,s,fit){const q=camera(p,s.yaw,s.pitch);return{x:fit.x+q[0]*fit.scale,y:fit.y+q[1]*fit.scale,z:q[2]*fit.scale};}
+  function cssMatrix(face,s,fit){
+    const ps=face.vertices.map(p=>camera(p,s.yaw,s.pitch)),u=sub(ps[1],ps[0]),v=sub(ps[3],ps[0]),n=cross(u,v),o=project(face.vertices[0],s,fit);
+    return[...u,0,...v,0,...n,0,o.x,o.y,o.z,1];
+  }
+  function nearestPhase(seed,s,fit,p){
+    const score=t=>{const q=project(grip(seed,t),s,fit);return (q.x-p.x)**2+(q.y-p.y)**2+.03*(t-s.progress)**2;};
+    let best=0,value=Infinity;for(let i=0;i<=160;i++){const t=i/160,v=score(t);if(v<value){best=t;value=v;}}
+    let a=Math.max(0,best-1/160),b=Math.min(1,best+1/160);for(let i=0;i<16;i++){const l=a+(b-a)/3,r=b-(b-a)/3;if(score(l)<score(r))b=r;else a=l;}
+    const mid=(a+b)/2;return score(0)<score(mid)?0:score(1)<score(mid)?1:mid;
+  }
+  function restore(v){return v?.version===1&&Number.isSafeInteger(v.seed)&&v.seed>=0&&Number.isFinite(v.progress)&&v.progress>=0&&v.progress<=1&&Number.isFinite(v.yaw)&&Math.abs(v.yaw)<1e6&&Number.isFinite(v.pitch)&&v.pitch>=.15&&v.pitch<=1.4?{version:1,seed:v.seed,progress:v.progress,yaw:v.yaw,pitch:v.pitch}:create();}
+  return{clamp,create,sub,add,dot,cross,pose,grip,camera,frame,project,cssMatrix,nearestPhase,restore};
+})();
+if(typeof module!=='undefined')module.exports=FoldModel;
+</script>
+<script>(() => {
+  const M=FoldModel,K=MotionKit;let s=M.create(),fit=null,fitKey='',showArc=false;
+  const world=document.getElementById('fold-world'),planes=new Map();
+  const cubeIcon=K.svg('<path d="m24 5 17 10v20L24 45 7 35V15ZM7 15l17 10 17-10M24 25v20" fill="none" stroke="#83d6d1" stroke-width="1.3"/>');
+  const cameraIcon=K.svg('<ellipse cx="24" cy="24" rx="19" ry="9" fill="none" stroke="#83d6d1"/><ellipse cx="24" cy="24" rx="9" ry="19" fill="none" stroke="#648896"/><circle cx="24" cy="24" r="3" fill="#eedbb6"/>');
+  const gripArt=K.svg('<circle cx="24" cy="24" r="11" fill="#102735" stroke="#83d6d1" stroke-width="1.2"/><circle cx="24" cy="24" r="3.5" fill="#eedbb6"/>');
+  const set=p=>{s.progress=p;};
+  function describe(){const which=s.seed%3,count=[2,5,6][which],phase=s.progress===0?'flat':s.progress===1?['a right-angle hinge','an open box','a closed cube'][which]:'partly folded';return `${count} persistent square faces, ${phase}. Each face stays rigid while the shared edges act as hinges. Drag the glowing handle to fold, drag the object to turn the view, or use the time control. Focus the view and use arrow keys to orbit; focus the handle and use arrow keys to fold.`;}
+  function material(face){const [a,b,,d]=face.vertices,n=M.cross(M.sub(b,a),M.sub(d,a)),light=[.36,-.48,.8],shade=.35+.27*Math.abs(M.dot(n,light)),base=K.C[face.id%3];const rgb=[1,3,5].map(i=>parseInt(base.slice(i,i+2),16));return rgb.map(x=>Math.round(12+x*shade));}
+  function render(v){
+    const key=[s.seed%3,s.yaw,s.pitch,v.w,v.h].join(',');if(key!==fitKey){fit=M.frame(s.seed,s.yaw,s.pitch,v.w,v.h);fitKey=key;}
+    const faces=M.pose(s.seed,s.progress),seen=new Set();
+    for(const face of faces){
+      seen.add(face.id);let el=planes.get(face.id);if(!el){el=document.createElement('div');el.className='fold-face';el.dataset.face=String(face.id);el.setAttribute('aria-hidden','true');el.innerHTML=K.svg(K.shape(K.shapes[face.id%3],24,24,10,K.C[face.id%3],face.id<3));world.appendChild(el);planes.set(face.id,el);}
+      const rgb=material(face),darker=rgb.map(x=>Math.round(x*.8));el.style.width=`${fit.scale}px`;el.style.height=`${fit.scale}px`;el.style.transform=`matrix3d(${M.cssMatrix(face,s,fit).join(',')})`;el.style.background=`linear-gradient(145deg,rgb(${rgb.join(',')}),rgb(${darker.join(',')}))`;el.style.borderColor=K.C[face.id%3]+'99';
+    }
+    for(const [id,el] of planes)if(!seen.has(id)){el.remove();planes.delete(id);}
+    let body='';if(showArc){const pts=Array.from({length:65},(_,i)=>M.project(M.grip(s.seed,i/64),s,fit));body+=`<path d="${pts.map((p,i)=>`${i?'L':'M'}${K.f(p.x)} ${K.f(p.y)}`).join(' ')}" fill="none" stroke="#83d6d1" stroke-opacity=".28" stroke-dasharray="2 6"/>`;}
+    const p=M.project(M.grip(s.seed,s.progress),s,fit);
+    const items=[{key:'orbit-pad',kind:'orbit-pad',x:v.w/2,y:v.h*.43,art:'',label:'Rotate the view. Drag horizontally or vertically, or use arrow keys. This changes the viewpoint, not the fold.'},{key:'fold-grip',kind:'fold-grip',x:p.x,y:p.y,art:gripArt,label:'Fold the hinged faces. Drag this handle along its motion, tap for the next fold position, or use arrow keys.'},{key:'camera-home',kind:'camera',x:v.w/2,y:v.h*.93,art:cameraIcon,label:'Restore the original viewing angle while keeping the fold.'}];
+    v.paint(body,items);v.examples(s.seed%3,3);
+  }
+  const view=K.create({title:'Fold',description:'Begin with two faces sharing a hinge. Later examples add the four sides of an open box and the final lid of a cube. Grab the glowing handle to fold the faces, or drag across the object to inspect it from another direction. Every square keeps its side lengths and identity. The last lid closes only after the sides stand upright.',glyph:cubeIcon,render,describe,progress:()=>s.progress,snapshot:()=>({...s}),restore:v=>{s=M.restore(v);fitKey='';},scrub:set,
+    play(){if(s.progress>=1)view.tween(1,0,set,2300);else view.tween(s.progress,1,set,3600*(1-s.progress),()=>view.tone(3));},rewind(){view.tween(s.progress,0,set,1300);},example(){s=M.create(s.seed+1);fitKey='';showArc=false;},
+    down(key){if(key==='fold-grip'){showArc=true;return{fold:s.progress};}if(key==='orbit-pad')return{yaw:s.yaw,pitch:s.pitch};return null;},
+    move(d,p){if(d.key==='fold-grip')s.progress=M.nearestPhase(s.seed,s,fit,p);else if(d.key==='orbit-pad'){s.yaw=d.yaw+(p.x-d.start.x)*.008;s.pitch=M.clamp(d.pitch+(p.y-d.start.y)*.008,.15,1.4);}},
+    up(){showArc=false;view.tone(1);},cancel(d){showArc=false;if(d.key==='fold-grip')s.progress=d.fold;else{s.yaw=d.yaw;s.pitch=d.pitch;}},
+    activate(key){if(key==='fold-grip'){const p=s.progress>=.999?0:Math.min(1,(Math.floor(s.progress*4+1e-7)+1)/4);view.tween(s.progress,p,set,600);showArc=false;}else if(key==='camera-home'){s.yaw=-.52;s.pitch=.75;}},
+    nudge(key,dir,keyName){if(key==='fold-grip')view.tween(s.progress,M.clamp(s.progress+dir*.1),set,280);else if(key==='orbit-pad'){if(keyName==='ArrowUp'||keyName==='ArrowDown')s.pitch=M.clamp(s.pitch+dir*.15,.15,1.4);else s.yaw+=dir*.2;}},escape(){showArc=false;}
+  });view.start();
+})();
+</script>
+</body>
+</html>

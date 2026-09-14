@@ -1,0 +1,66 @@
+{
+  "version": "0.3.0",
+  "lessons": 9,
+  "files": [
+    {
+      "file": "correspondence.html",
+      "bytes": 53614,
+      "sha256": "7034ab0518150dcbd8cd112d6d16b14cfff088597a283b611172322148ac48cc"
+    },
+    {
+      "file": "membership.html",
+      "bytes": 53609,
+      "sha256": "50dafc3c2f683ee335f5923db98a39f2362f4735e80f81d9aec154069f58ddf5"
+    },
+    {
+      "file": "composition.html",
+      "bytes": 53612,
+      "sha256": "4362ee1bf96cb00fe1f4635039f2325a928b2c0501798fedfabbdf67a82d3b25"
+    },
+    {
+      "file": "return.html",
+      "bytes": 22699,
+      "sha256": "5194fc74735bef6b1dcd35af26c0f65cbc48c63d979fb830f8949dd1ebd70c5b"
+    },
+    {
+      "file": "undo.html",
+      "bytes": 22576,
+      "sha256": "e823397eedc6d32c35d87d2f66bc77b65be4f2c72ce7dc40f2450d5570ddeea0"
+    },
+    {
+      "file": "same.html",
+      "bytes": 22069,
+      "sha256": "6b4e79600a78dcbb5c7d3103d8b1b732ecdd28aeb7fd2152db69d9fe458c6dc9"
+    },
+    {
+      "file": "connections.html",
+      "bytes": 28299,
+      "sha256": "07d5a2f296e42d9cbdb71c5f58c2b2437488182efd4df2427b36fd19a7ddc486"
+    },
+    {
+      "file": "through.html",
+      "bytes": 28575,
+      "sha256": "8483b4786eccf91ffaf3a5e2176b55755410eb43f164fd113c268d725cdb6488"
+    },
+    {
+      "file": "fold.html",
+      "bytes": 26373,
+      "sha256": "5ce80f1ed5c251a49dc8d79cba4fd739fe381ef139dfe973cc135897b20b1ef7"
+    },
+    {
+      "file": "index.html",
+      "bytes": 19515,
+      "sha256": "91bdf520994d166329a7bf7120aea116f6408255de801154812b305af0b49429"
+    },
+    {
+      "file": "collection.html",
+      "bytes": 344088,
+      "sha256": "83e73142b98fd1506dba1d5bbdc7cdfb3077b6b74725139ba0fddc76079f88c1"
+    },
+    {
+      "file": "foundations.html",
+      "bytes": 52451,
+      "sha256": "4692c34c6e7c2013105b6a2add92b331244a7d60170634c31a0e79823fec306b"
+    }
+  ]
+}

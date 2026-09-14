@@ -1,0 +1,18 @@
+{
+  "contract": 1,
+  "id": "correspondence",
+  "title": "Correspondence",
+  "summary": "Give every object a partner.",
+  "order": 0,
+  "builds_on": [],
+  "related": [],
+  "contexts": [
+    "sets",
+    "relations"
+  ],
+  "entry": "entry.html",
+  "glyph": "glyph.svg",
+  "checks": [
+    "../../tests/models.cjs"
+  ]
+}

@@ -1,0 +1,4 @@
+#fold-world{position:absolute;inset:0;width:100%;height:100%;transform-style:preserve-3d;transform:translateZ(0);pointer-events:none;z-index:1;overflow:visible;opacity:1;filter:none;isolation:auto}
+.fold-face{position:absolute;left:0;top:0;transform-origin:0 0;backface-visibility:visible;display:grid;place-items:center;border:1px solid #c5e0df99;border-radius:1px;box-shadow:inset 0 0 0 2px #0715200a;pointer-events:none}
+.fold-face svg{width:28%;height:28%;opacity:.88;pointer-events:none}
+#objects{z-index:3}.piece.orbit-pad{width:100%;height:84%;z-index:1;border-radius:22px;background:transparent!important;filter:none;cursor:grab}.piece.fold-grip{z-index:4;background:#0a14205c;box-shadow:0 0 23px #83d6d125}.piece.fold-grip svg{filter:none}.piece.camera{width:52px;height:48px;z-index:4;border:1px solid #64889644;border-radius:15px;cursor:pointer}.piece.camera svg{width:31px;height:31px;filter:none}.piece.camera:hover{background:#83d6d10b}

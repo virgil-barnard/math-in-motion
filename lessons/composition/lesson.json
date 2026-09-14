@@ -1,0 +1,20 @@
+{
+  "contract": 1,
+  "id": "composition",
+  "title": "Composition",
+  "summary": "Change what happens by changing the order.",
+  "order": 2,
+  "builds_on": [
+    "correspondence"
+  ],
+  "related": [],
+  "contexts": [
+    "relations",
+    "transformations"
+  ],
+  "entry": "entry.html",
+  "glyph": "glyph.svg",
+  "checks": [
+    "../../tests/models.cjs"
+  ]
+}

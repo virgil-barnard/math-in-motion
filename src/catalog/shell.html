@@ -1,0 +1,15 @@
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"><meta name="theme-color" content="#0a1420"><meta name="description" content="A growing collection of wordless, directly manipulable mathematical experiences. Every lesson works offline."><title>Mathematics in Motion</title><style>__HOST_STYLE__</style></head>
+<body>
+<main id="collection">
+  <h1 class="sr-only">Mathematics in Motion</h1>
+  <header class="collection-header"><button id="map-button" type="button" aria-label="Open the lesson constellation" aria-expanded="true" aria-controls="lesson-map"></button><div id="current-glyph" aria-hidden="true"></div><button id="continue-button" type="button" aria-label="Open a suggested next lesson"></button></header>
+  <section id="lesson-map" aria-label="Lesson constellation" aria-describedby="map-description"><p id="map-description" class="sr-only">Each symbol opens a complete experience. Solid paths suggest what builds on what; dotted paths connect related ideas. All lessons are open to explore. A small dot records a visit, not mastery.</p><div id="map-field"><svg id="map-links" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"></svg><nav id="map-nodes" aria-label="Choose a lesson"></nav></div><div id="map-paging" hidden><button id="map-prev" type="button" aria-label="Previous group of lessons"></button><div id="page-dots" aria-hidden="true"></div><button id="map-next" type="button" aria-label="Next group of lessons"></button></div></section>
+  <section id="lesson-frame" aria-label="Current mathematical experience" hidden></section>
+  <p id="catalog-status" class="sr-only" aria-live="polite"></p>
+</main>
+<script>const MotionCatalog=__CATALOG__;const MotionPayloads=__PAYLOADS__;</script>
+<script>__HOST_MODEL__</script>
+<script>__HOST_APP__</script>
+</body></html>

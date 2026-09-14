@@ -1,0 +1,254 @@
+<!doctype html>
+<html lang="en" data-lesson="same">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"><meta name="theme-color" content="#0a1420"><title>Same · Mathematics in Motion</title><style>:root{color-scheme:dark;--bg:#0a1420;--ink:#eedbb6;--aqua:#83d6d1;--violet:#b7a4e8;--line:#648896;--soft:#aec4cb}
+*{box-sizing:border-box}html,body{margin:0;min-width:280px;min-height:100%;background:var(--bg)}body{color:var(--ink);font-family:system-ui,sans-serif;background:radial-gradient(ellipse at 50% 35%,#152c3b, #0a1420 70%);-webkit-tap-highlight-color:transparent}button,input{font:inherit}button{border:0;background:none;color:inherit;cursor:pointer;padding:0;touch-action:manipulation;-webkit-user-select:none;user-select:none}button:focus-visible,input:focus-visible{outline:2px solid #f5e5bb;outline-offset:4px}button svg{width:100%;height:100%;pointer-events:none}svg{display:block}button:active{filter:brightness(1.2)}[hidden]{display:none!important}
+.sr-only{position:absolute!important;width:1px!important;height:1px!important;padding:0!important;margin:-1px!important;overflow:hidden!important;clip-path:inset(50%)!important;white-space:nowrap!important;border:0!important}
+#lesson-app{width:min(100%,1000px);height:100vh;height:100svh;min-height:570px;max-height:1000px;margin:auto;display:grid;grid-template-rows:64px minmax(370px,1fr) 132px;padding:env(safe-area-inset-top) 18px env(safe-area-inset-bottom)}
+.lesson-header{display:flex;align-items:center;justify-content:center;position:relative}.lesson-glyph{width:34px;height:34px;opacity:.75}.lesson-header #sound{position:absolute;right:0;width:46px;height:46px;padding:13px;opacity:.6;border-radius:50%}.lesson-header #sound[aria-pressed=true]{opacity:1}
+#stage{position:relative;min-height:370px;isolation:isolate}#scene,#objects{position:absolute;inset:0;width:100%;height:100%}#scene{pointer-events:none;overflow:visible}#objects{pointer-events:none}.piece{position:absolute;transform:translate(-50%,-50%);width:48px;height:48px;border-radius:50%;pointer-events:auto;touch-action:none;display:grid;place-items:center;z-index:2;cursor:grab}.piece svg{width:44px;height:44px;filter:drop-shadow(0 0 9px #eedbb61a)}.piece:hover{background:#83d6d10b}.piece:active,.piece.dragging{cursor:grabbing;background:#eedbb610}.piece.choice{width:64px;height:56px;border-radius:14px;cursor:pointer;background:#83d6d108;border:1px solid #64889655}.piece.choice[aria-pressed=true]{border-color:#eedbb6aa;background:#eedbb60d}.piece.choice svg{width:48px;height:42px;filter:none}.piece.gate-target{width:78%;height:70px;border-radius:15px;background:transparent;z-index:1}
+.lesson-footer{display:flex;flex-direction:column;justify-content:center;gap:12px;padding:0 max(8px,5%)}.transport{display:flex;align-items:center;gap:18px}.round-control{width:48px;height:48px;flex:none;border:1px solid #afc3ca40;border-radius:50%;padding:15px;background:#83d6d108}.quiet-control{width:46px;height:46px;flex:none;border-radius:50%;padding:13px;opacity:.7}.quiet-control:hover{background:#83d6d10d;opacity:1}.tools{display:flex;align-items:center;justify-content:center;gap:22px}.example-progress{display:flex;gap:10px;min-width:80px;justify-content:center;align-items:center}.example-dot{width:4px;height:4px;border-radius:50%;background:#64889666}.example-dot.active{background:var(--ink);box-shadow:0 0 0 3px #eedbb619}
+input[type=range]{width:100%;min-width:0;height:48px;margin:0;background:transparent;accent-color:var(--aqua);cursor:ew-resize}
+.embedded #lesson-app{grid-template-rows:42px minmax(370px,1fr) 128px;min-height:540px}.embedded .lesson-glyph{opacity:.35;width:26px;height:26px}
+@media(max-width:560px){#lesson-app{padding-left:10px;padding-right:10px}.lesson-footer{padding:0 12px}.transport{gap:12px}}
+@media(prefers-reduced-motion:reduce){*,*:before,*:after{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
+</style></head>
+<body>
+<main id="lesson-app">
+  <h1 id="lesson-title" class="sr-only"></h1>
+  <header class="lesson-header"><div id="lesson-glyph" class="lesson-glyph" aria-hidden="true"></div><button id="sound" type="button" aria-label="Enable optional sound" aria-pressed="false"></button></header>
+  <section id="stage" aria-labelledby="lesson-title" aria-describedby="lesson-description"><svg id="scene" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"></svg><div id="objects"></div></section>
+  <footer class="lesson-footer">
+    <div class="transport"><button id="play" class="round-control" type="button" aria-label="Play the transformation"></button><label for="timeline" class="sr-only">Inspect the transformation</label><input id="timeline" type="range" min="0" max="1000" step="1" value="0"><button id="rewind" class="quiet-control" type="button" aria-label="Return to the beginning"></button></div>
+    <div class="tools"><div id="example-progress" class="example-progress" aria-hidden="true"></div><button id="example" class="quiet-control" type="button" aria-label="Explore another example"></button></div>
+  </footer>
+  <p id="lesson-description" class="sr-only"></p><p id="status" class="sr-only" aria-live="polite" aria-atomic="true"></p>
+</main>
+
+<script>/* Portable document contract v1. Parent identity is checked; no network access. */
+const MotionBridge = (() => {
+  const channel = 'mathematics-in-motion/v1';
+  let hooks = null;
+  const lesson = document.documentElement.dataset.lesson;
+  const embedded = window.parent !== window;
+  if (embedded) document.documentElement.classList.add('embedded');
+  function send(type, extra = {}) {
+    if (embedded) window.parent.postMessage({channel, lesson, type, ...extra}, '*');
+  }
+  function changed() { if (hooks) send('state', {state: hooks.snapshot()}); }
+  window.addEventListener('message', event => {
+    if (!embedded || event.source !== window.parent || event.data?.channel !== channel || !hooks) return;
+    const data = event.data;
+    if (data.type === 'restore') {
+      if (data.state) hooks.restore(data.state);
+      changed();
+    } else if (data.type === 'pause') {
+      hooks.pause();
+      send('paused', {request: data.request, state: hooks.snapshot()});
+    }
+  });
+  return {
+    connect(value) { hooks = value; send('ready'); },
+    changed,
+    explored() { send('explored'); }
+  };
+})();
+</script>
+<script>/* Small optional author kit. Lessons own models, state, geometry, and gestures. */
+const MotionKit = (() => {
+  const C = ['#eedbb6','#83d6d1','#b7a4e8','#d8a78b'];
+  const shapes = ['circle','square','triangle','diamond'];
+  const clamp = (x,a=0,b=1) => Math.max(a,Math.min(b,x));
+  const smooth = x => x*x*(3-2*x);
+  const f = x => Number(x).toFixed(3);
+  const svg = body => `<svg viewBox="0 0 48 48" aria-hidden="true" xmlns="http://www.w3.org/2000/svg">${body}</svg>`;
+  function shape(kind,x,y,r,color=C[0],filled=true,opacity=1) {
+    const a=`fill="${filled?color:'none'}" stroke="${color}" stroke-width="${filled?.7:1.2}" opacity="${opacity}" stroke-linejoin="round"`;
+    if(kind==='circle')return `<circle cx="${f(x)}" cy="${f(y)}" r="${r}" ${a}/>`;
+    if(kind==='square')return `<rect x="${f(x-r)}" y="${f(y-r)}" width="${2*r}" height="${2*r}" rx="2.5" ${a}/>`;
+    if(kind==='triangle')return `<path d="M${f(x)} ${f(y-r*1.15)}L${f(x+r)} ${f(y+r*.8)}L${f(x-r)} ${f(y+r*.8)}Z" ${a}/>`;
+    return `<path d="M${f(x)} ${f(y-r*1.2)}L${f(x+r)} ${f(y)}L${f(x)} ${f(y+r*1.2)}L${f(x-r)} ${f(y)}Z" ${a}/>`;
+  }
+  const icons={
+    play:svg('<path d="m18 10 20 14-20 14Z" fill="currentColor"/>'),
+    pause:svg('<path d="M18 12v24M30 12v24" stroke="currentColor" stroke-width="4" stroke-linecap="round"/>'),
+    rewind:svg('<path d="M12 12a16 16 0 1 1-3 20M12 3v11H2" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>'),
+    example:svg('<rect x="5" y="5" width="27" height="27" rx="8" fill="none" stroke="currentColor" opacity=".45"/><rect x="16" y="16" width="27" height="27" rx="8" fill="#102230" stroke="currentColor"/><circle cx="24" cy="24" r="2" fill="currentColor"/><circle cx="35" cy="35" r="2" fill="currentColor"/>'),
+    silent:svg('<path d="M7 18h7l10-8v28l-10-8H7ZM33 18l10 12M43 18 33 30" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>'),
+    sound:svg('<path d="M7 18h7l10-8v28l-10-8H7ZM32 17q7 7 0 14M38 10q13 14 0 28" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>')
+  };
+  function create(spec) {
+    const $=id=>document.getElementById(id);
+    const stage=$('stage'),scene=$('scene'),objects=$('objects'),range=$('timeline'),play=$('play');
+    let w=640,h=500,frame=0,animation=null,drag=null,suppress=null,lastStatus='';
+    let reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
+    let audio=null,enabled=false;
+    const buttons=new Map();
+    $('lesson-title').textContent=spec.title;
+    $('lesson-description').textContent=spec.description;
+    $('lesson-glyph').innerHTML=spec.glyph;
+    $('rewind').innerHTML=icons.rewind;$('example').innerHTML=icons.example;$('sound').innerHTML=icons.silent;
+    function announce(text) {if(text!==lastStatus){$('status').textContent=text;lastStatus=text;}}
+    function stop(){animation=null;cancelAnimationFrame(frame);frame=0;play.innerHTML=icons.play;play.setAttribute('aria-label','Play the transformation');}
+    function paint(body,items=[]) {
+      scene.innerHTML=body;
+      const seen=new Set();
+      for(const item of items){
+        seen.add(item.key);let b=buttons.get(item.key);
+        if(!b){b=document.createElement('button');b.type='button';b.dataset.key=item.key;objects.appendChild(b);buttons.set(item.key,b);}
+        b.className=`piece ${item.kind||'token'}${drag?.key===item.key?' dragging':''}`;
+        b.style.left=`${item.x}px`;b.style.top=`${item.y}px`;
+        b.setAttribute('aria-label',item.label);
+        if(item.selected!==undefined)b.setAttribute('aria-pressed',String(item.selected));
+        const art=item.art??svg(shape(item.shape||'circle',24,24,11,item.color||C[0]));
+        if(b.dataset.art!==art){b.innerHTML=art;b.dataset.art=art;}
+      }
+      for(const [key,b] of buttons)if(!seen.has(key)){b.remove();buttons.delete(key);}
+    }
+    function render(){spec.render(api);range.value=String(clamp(spec.progress())*1000);range.setAttribute('aria-valuetext',spec.describe());}
+    function changed(){announce(spec.describe());MotionBridge.changed();}
+    function tone(index=0){
+      if(!enabled||!audio)return;
+      const time=audio.currentTime,osc=audio.createOscillator(),gain=audio.createGain();
+      osc.frequency.value=[261.63,329.63,392,523.25][Math.abs(index)%4];
+      gain.gain.setValueAtTime(.0001,time);gain.gain.exponentialRampToValueAtTime(.045,time+.015);gain.gain.exponentialRampToValueAtTime(.0001,time+.38);
+      osc.connect(gain);gain.connect(audio.destination);osc.start(time);osc.stop(time+.4);osc.onended=()=>{osc.disconnect();gain.disconnect();};
+    }
+    function tween(from,to,setter,duration=600,after=null){
+      stop();
+      if(reduced||Math.abs(to-from)<1e-8){setter(to);render();after?.();changed();return;}
+      animation={from,to,setter,start:performance.now(),duration,after};
+      play.innerHTML=icons.pause;play.setAttribute('aria-label','Pause the transformation');
+      const tick=now=>{
+        if(!animation)return;const a=animation,t=clamp((now-a.start)/a.duration);
+        a.setter(t===1?a.to:a.from+(a.to-a.from)*smooth(t));render();
+        if(t===1){stop();a.after?.();changed();}else frame=requestAnimationFrame(tick);
+      };frame=requestAnimationFrame(tick);
+    }
+    function cancelDrag(){if(!drag)return;const old=drag;drag=null;spec.cancel?.(old);try{old.button.releasePointerCapture(old.pointer);}catch{}render();}
+    function point(event){const r=stage.getBoundingClientRect();return{x:event.clientX-r.left,y:event.clientY-r.top};}
+    objects.addEventListener('pointerdown',event=>{
+      const button=event.target.closest('button[data-key]');if(!button||drag||event.button!==0)return;
+      stop();suppress=null;const p=point(event),key=button.dataset.key;
+      const detail=spec.down?.(key,p);if(!detail)return;
+      drag={...detail,key,button,pointer:event.pointerId,start:p,moved:false};
+      button.setPointerCapture(event.pointerId);render();
+    });
+    objects.addEventListener('pointermove',event=>{
+      if(!drag||drag.pointer!==event.pointerId)return;const p=point(event);
+      if(!drag.moved&&Math.hypot(p.x-drag.start.x,p.y-drag.start.y)<3)return;
+      drag.moved=true;spec.move?.(drag,p);render();
+    });
+    objects.addEventListener('pointerup',event=>{
+      if(!drag||drag.pointer!==event.pointerId)return;const ended=drag;drag=null;
+      try{ended.button.releasePointerCapture(ended.pointer);}catch{}
+      if(ended.moved){suppress=ended.key;spec.up?.(ended,point(event));render();changed();MotionBridge.explored();}
+    });
+    for(const name of ['pointercancel','lostpointercapture'])objects.addEventListener(name,event=>{if(drag?.pointer===event.pointerId){cancelDrag();changed();}});
+    objects.addEventListener('click',event=>{
+      const button=event.target.closest('button[data-key]');if(!button)return;
+      if(event.detail>0&&suppress===button.dataset.key){suppress=null;return;}
+      suppress=null;stop();spec.activate?.(button.dataset.key);render();changed();MotionBridge.explored();
+    });
+    objects.addEventListener('keydown',event=>{
+      const button=event.target.closest('button[data-key]');if(!button||!['ArrowLeft','ArrowRight','ArrowUp','ArrowDown'].includes(event.key))return;
+      if(spec.nudge){event.preventDefault();cancelDrag();stop();spec.nudge(button.dataset.key,['ArrowRight','ArrowUp'].includes(event.key)?1:-1,event.key);render();changed();}
+    });
+    play.addEventListener('click',()=>{cancelDrag();if(animation){stop();changed();return;}spec.play();render();MotionBridge.explored();});
+    $('rewind').addEventListener('click',()=>{cancelDrag();stop();spec.rewind();render();changed();});
+    $('example').addEventListener('click',()=>{cancelDrag();stop();spec.example();render();changed();tone(2);});
+    range.addEventListener('input',()=>{const p=Number(range.value)/1000;cancelDrag();stop();spec.scrub(p);render();});
+    range.addEventListener('change',()=>{spec.settle?.();render();changed();MotionBridge.explored();});
+    range.addEventListener('keydown',event=>{
+      if(!spec.step||!['ArrowLeft','ArrowRight','ArrowUp','ArrowDown'].includes(event.key))return;
+      event.preventDefault();cancelDrag();stop();spec.step(['ArrowRight','ArrowUp'].includes(event.key)?1:-1);render();changed();
+    });
+    $('sound').addEventListener('click',async()=>{
+      if(enabled){enabled=false;audio?.suspend();}else{const Audio=window.AudioContext||window.webkitAudioContext;if(!Audio){announce('Optional sound is unavailable.');return;}try{audio||=new Audio();await audio.resume();enabled=true;tone(0);}catch{announce('Optional sound could not start.');return;}}
+      $('sound').setAttribute('aria-pressed',String(enabled));$('sound').setAttribute('aria-label',enabled?'Mute optional sound':'Enable optional sound');$('sound').innerHTML=icons[enabled?'sound':'silent'];
+    });
+    function pause(){cancelDrag();stop();if(enabled){enabled=false;audio?.suspend();$('sound').innerHTML=icons.silent;$('sound').setAttribute('aria-pressed','false');$('sound').setAttribute('aria-label','Enable optional sound');}}
+    function resize(){cancelDrag();const r=stage.getBoundingClientRect();w=Math.max(260,r.width);h=Math.max(370,r.height);scene.setAttribute('viewBox',`0 0 ${w} ${h}`);render();}
+    const api={get w(){return w;},get h(){return h;},get reduced(){return reduced;},paint,render,tween,stop,changed,tone,announce,
+      examples(index,count){$('example-progress').innerHTML=Array.from({length:count},(_,i)=>`<span class="example-dot${i===index?' active':''}"></span>`).join('');},
+      start(){stop();new ResizeObserver(resize).observe(stage);resize();MotionBridge.connect({snapshot:spec.snapshot,restore(value){pause();spec.restore(value);render();},pause});}
+    };
+    document.addEventListener('visibilitychange',()=>{if(document.hidden){pause();changed();}});
+    window.addEventListener('keydown',event=>{if(event.key==='Escape'){cancelDrag();stop();spec.escape?.();render();changed();}});
+    matchMedia('(prefers-reduced-motion: reduce)').addEventListener('change',event=>{reduced=event.matches;if(reduced){pause();spec.settle?.();render();changed();}});
+    return api;
+  }
+  return {C,shapes,clamp,smooth,f,svg,shape,create};
+})();
+</script>
+<script>const SameModel = (() => {
+  const cases=[[[1,0,2],[0,2,1]],[[0,2,1],[2,1,0]],[[2,1,0],[1,0,2]]];
+  const identity=[0,1,2],compose=(a,b)=>a.map(x=>b[x]);
+  const equal=(a,b)=>a.every((x,i)=>x===b[i]);
+  const create=(seed=0)=>({version:1,seed,choice:0,progress:0});
+  const chain=s=>cases[s.seed%cases.length];
+  const target=s=>compose(...chain(s));
+  function choices(s){const [a,b]=chain(s),out=[compose(b,a),identity];out.splice(1+s.seed%2,0,target(s));return out;}
+  const solved=s=>equal(choices(s)[s.choice],target(s));
+  function restore(v){return v?.version===1&&Number.isInteger(v.seed)&&v.seed>=0&&Number.isInteger(v.choice)&&v.choice>=0&&v.choice<3&&Number.isFinite(v.progress)&&v.progress>=0&&v.progress<=1?{version:1,seed:v.seed,choice:v.choice,progress:v.progress}:create();}
+  return{cases,identity,compose,equal,create,chain,target,choices,solved,restore};
+})();
+if(typeof module!=='undefined')module.exports=SameModel;
+</script>
+<script>/* Shared drawing primitive: recorded column-vector permutations, first then second. */
+const MotionRoutes = (() => {
+  const {f,shape,C,svg}=MotionKit;
+  const xs=[.22,.5,.78];
+  function lanes(chain,input){const out=[input];for(const p of chain)out.push(p[out.at(-1)]);return out;}
+  function path(chain,input,box){
+    const track=lanes(chain,input),{x,y,w,h}=box,n=chain.length;
+    let d=`M${f(x+xs[input]*w)} ${f(y)}`;
+    for(let i=0;i<n;i++){
+      const y0=y+h*(i+.18)/n,y1=y+h*(i+.82)/n;
+      const a=x+xs[track[i]]*w,b=x+xs[track[i+1]]*w;
+      d+=`L${f(a)} ${f(y0)}C${f(a)} ${f(y0+(y1-y0)/3)} ${f(b)} ${f(y1-(y1-y0)/3)} ${f(b)} ${f(y1)}`;
+    }
+    return d+`L${f(x+xs[track.at(-1)]*w)} ${f(y+h)}`;
+  }
+  function point(chain,input,t,box){
+    const track=lanes(chain,input),n=chain.length,p=MotionKit.clamp(t)*n,i=Math.min(n-1,Math.floor(p)),local=p-i;
+    const q=MotionKit.smooth(MotionKit.clamp((local-.18)/.64));
+    return{x:box.x+(xs[track[i]]+(xs[track[i+1]]-xs[track[i]])*q)*box.w,y:box.y+MotionKit.clamp(t)*box.h};
+  }
+  function card(perm){return svg(perm.map((_,i)=>`<path d="${path([perm],i,{x:0,y:5,w:48,h:38})}" fill="none" stroke="${C[i]}" stroke-width="1.2"/>`).join(''));}
+  function drawing(chain,t,box,{ghosts=null,complete=false,radius=10}={}){
+    let body='';
+    chain.forEach((_,i)=>{const y=box.y+box.h*(i+.18)/chain.length,h=box.h*.64/chain.length;body+=`<rect x="${f(box.x+box.w*.07)}" y="${f(y-5)}" width="${f(box.w*.86)}" height="${f(h+10)}" rx="15" fill="${C[i%2+1]}" fill-opacity=".025" stroke="${C[i%2+1]}" stroke-opacity=".32"/>`;});
+    for(let i=0;i<3;i++){
+      body+=`<path d="${path(chain,i,box)}" fill="none" stroke="${C[i]}" stroke-width="1.3" stroke-opacity=".4"/>`;
+      body+=`<circle cx="${f(box.x+xs[i]*box.w)}" cy="${f(box.y+box.h)}" r="${radius+7}" fill="none" stroke="${complete?C[1]:'#648896'}" stroke-opacity=".6"/>`;
+      if(ghosts)body+=shape(MotionKit.shapes[ghosts[i]],box.x+xs[i]*box.w,box.y+box.h,radius+3,C[ghosts[i]],false,.4);
+    }
+    return body;
+  }
+  return{xs,lanes,path,point,card,drawing};
+})();
+</script>
+<script>(() => {
+  const M=SameModel,K=MotionKit,R=MotionRoutes;let s=M.create();
+  const set=p=>{s.progress=p;};
+  function choose(i){if(i!==s.choice)view.tween(s.progress,0,set,350,()=>{s.choice=i;view.render();view.tone(i);});}
+  function describe(){return s.progress<1?'Compare two constructions on identical sets of three inputs. Choose a single operation on the right to match the two operations on the left.':M.solved(s)?'Both constructions agree on every input. The single mechanism has the same action as the pair.':'The constructions disagree. At least one input finishes on a different track.';}
+  const view=K.create({title:'Same',description:'Identical sets of three shapes travel through two constructions. The left uses two operations in succession. The right uses one chosen operation. Choose a lower tile and inspect all three outputs. Matching one example is not enough: these constructions must agree on every input in their three-element domain.',glyph:R.card([1,2,0]),describe,progress:()=>s.progress,snapshot:()=>({...s}),restore:v=>{s=M.restore(v);},
+    render(v){
+      const gap=v.w*.04,panel=(v.w-gap)/2,boxes=[{x:0,y:v.h*.12,w:panel,h:v.h*.60},{x:panel+gap,y:v.h*.12,w:panel,h:v.h*.60}],chains=[M.chain(s),[M.choices(s)[s.choice]]];
+      let body='',items=[];const radius=v.w<450?7.8:11;
+      boxes.forEach((box,j)=>{
+        body+=R.drawing(chains[j],s.progress,box,{complete:s.progress===1&&M.solved(s),radius});
+        for(let i=0;i<3;i++){const p=R.point(chains[j],i,s.progress,box);body+=K.shape(K.shapes[i],p.x,p.y,radius,K.C[i]);}
+      });
+      const spacing=Math.min(94,v.w*.28);
+      M.choices(s).forEach((p,i)=>items.push({key:`choice-${i}`,kind:'choice',x:v.w/2+(i-1)*spacing,y:v.h*.89,art:R.card(p),selected:s.choice===i,label:`Candidate ${i+1}: routes input tracks to ${p.map(x=>x+1).join(', ')}.`}));
+      v.paint(body,items);v.examples(s.seed%M.cases.length,M.cases.length);
+    },
+    play(){if(s.progress===1)view.tween(1,0,set,500,()=>view.tween(0,1,set,2900));else view.tween(s.progress,1,set,2900*(1-s.progress),()=>{if(M.solved(s))view.tone(3);});},
+    rewind(){view.tween(s.progress,0,set,550);},scrub:set,example(){s=M.create(s.seed+1);},activate(key){if(key.startsWith('choice-'))choose(Number(key.split('-')[1]));},nudge(key,dir){if(key.startsWith('choice-'))choose((s.choice+dir+3)%3);}
+  });view.start();
+})();
+</script>
+</body>
+</html>
