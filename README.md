@@ -1,6 +1,6 @@
 # Mathematics in Motion
 
-Nine wordless mathematical experiences, connected by a growing constellation.
+Ten wordless mathematical experiences, connected by a growing constellation.
 Every lesson is an independent offline document. The catalog offers suggested
 paths and cross-connections; every experience is available immediately.
 
@@ -8,14 +8,16 @@ paths and cross-connections; every experience is available immediately.
 no server, account, internet connection, external font, or runtime package.
 For GitHub Pages, use the lightweight `docs/index.html` and its adjacent lessons.
 
-Version **0.3.0** adds Connections, Through, and Fold: graph/matrix editing,
-composition by tracing intermediate routes, and rigid square faces folding into
-a cube. Each addition is its own lesson folder, discovered by the existing host.
+Version **0.4.0** adds Branch and a quieter opening path. One bead meets one
+fork before the same action repeats. An earlier journey remains visible, allowing
+different routes to reveal the same arrival. Graph/matrix and spatial studies
+remain available in the full constellation, outside the default opening sequence.
 
 | Document | Discovery | Try |
 |---|---|---|
 | `correspondence.html` | Every object can have a partner | Pair, rearrange, and repair unequal collections |
 | `membership.html` | One object can satisfy two rules | Sort into one, both, or neither region |
+| `branch.html` | Different journeys can meet at the same arrival | Guide a bead through open rings; return and compare another journey |
 | `composition.html` | Order can change an operation's result | Swap the routing mechanisms and trace every shape |
 | `return.html` | Separate cycles can return together | Drag any shape around its ring; either ring drives both |
 | `undo.html` | An operation can restore another's inputs | Choose or drag a lower routing tile, then inspect all inputs |
@@ -29,11 +31,17 @@ the original three-lesson collection. Its original regression checks remain.
 
 ## Exploring the collection
 
-The constellation control opens the map. Each geometric preview opens its
-lesson. Solid paths suggest what builds on what, while dotted paths connect
-related ideas. The next control suggests a continuation. A small dot means
-visited, not mastered. New groups become available when a catalog exceeds nine
-lessons; the data model allows overlapping subject contexts.
+The opening path offers Correspondence, Membership, Branch, and Return. Each
+geometric preview opens its lesson. The next control follows this small sequence,
+then invites exploration of the full constellation. It never uses visit counts
+as evidence that someone is ready for advanced material.
+
+The constellation control beneath the opening path reveals all ten lessons,
+paged in groups of nine. Solid paths suggest what builds on what; dotted paths
+connect related ideas. The path control returns to the opening sequence. Every
+lesson is immediately available, including through its direct URL fragment.
+A small dot means visited, not mastered. `#start` opens the small path; `#map`
+opens the complete constellation; `#branch` opens Branch directly.
 
 Opening the map pauses a lesson. Returning restores its state for the current
 session. Refreshing begins fresh. Visits are saved locally when the browser
@@ -43,6 +51,12 @@ The visible learning surface has no written words, numerals, scores, or subject
 menus. Native controls retain accessible names and descriptions. Use play,
 rewind, or the range to inspect motion. The lower tile-stack control introduces
 another example. Optional sound starts muted and is muted when navigating.
+
+In Branch, drag the bead toward either open ring or tap the ring. Tapping the
+bead demonstrates one step and stops. After a completed journey, return to the
+start and make different choices. The dashed trail records the previous journey.
+The second example lets left-then-right and right-then-left meet. Playback follows
+the same chosen route; it does not generate random outcomes.
 
 In Return, start with a 2-cycle, then try a 3-cycle, 2-and-3, 2-and-4, and 3-and-4.
 Drag any shape in either direction, or focus it and use arrow keys. Releasing
@@ -101,13 +115,15 @@ lessons and the complete downloadable collection sit alongside it. Rebuild and
 commit `docs/` when changing source. A custom Actions workflow is unnecessary.
 [GitHub publishing-source documentation](https://docs.github.com/en/pages/getting-started-with-github-pages/configuring-a-publishing-source-for-your-github-pages-site).
 
-This delivery prepares the files. It does not create a repository or publish a
-site.
+The project is maintained at [virgil-barnard/math-in-motion](https://github.com/virgil-barnard/math-in-motion).
+Changes are proposed through pull requests with rebuilt offline exports. Merging
+a pull request and configuring Pages remain repository-owner actions.
 
 ## Design and evidence
 
 - [Architecture and navigation](notes/architecture.md)
 - [Design philosophy](notes/design.md)
+- [Encounter design and the next hypotheses](notes/encounters.md)
 - [Authoring contract](AUTHORING.md)
 - [Curriculum charter](curriculum/plan.md)
 - [Future probability lesson](notes/probability.md)

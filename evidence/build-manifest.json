@@ -1,6 +1,6 @@
 {
-  "version": "0.3.0",
-  "lessons": 9,
+  "version": "0.4.0",
+  "lessons": 10,
   "files": [
     {
       "file": "correspondence.html",
@@ -11,6 +11,11 @@
       "file": "membership.html",
       "bytes": 53609,
       "sha256": "50dafc3c2f683ee335f5923db98a39f2362f4735e80f81d9aec154069f58ddf5"
+    },
+    {
+      "file": "branch.html",
+      "bytes": 27669,
+      "sha256": "d365b52188545a35c010d6c98268cb312d207c3d304cca83ea328784d25bc444"
     },
     {
       "file": "composition.html",
@@ -49,13 +54,13 @@
     },
     {
       "file": "index.html",
-      "bytes": 19515,
-      "sha256": "91bdf520994d166329a7bf7120aea116f6408255de801154812b305af0b49429"
+      "bytes": 22651,
+      "sha256": "3d1578a6612ffdc75456d43be85e74c974f9238fbac9717dae6bac197d16b6e4"
     },
     {
       "file": "collection.html",
-      "bytes": 344088,
-      "sha256": "83e73142b98fd1506dba1d5bbdc7cdfb3077b6b74725139ba0fddc76079f88c1"
+      "bytes": 376219,
+      "sha256": "e72c0143ad31201165832da2e0e390db050799490b1ea98f38b8944c441b8d28"
     },
     {
       "file": "foundations.html",

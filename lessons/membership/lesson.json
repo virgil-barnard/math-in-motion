@@ -18,5 +18,6 @@
   "glyph": "glyph.svg",
   "checks": [
     "../../tests/models.cjs"
-  ]
+  ],
+  "opening_order": 1
 }

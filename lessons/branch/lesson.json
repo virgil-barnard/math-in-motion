@@ -1,0 +1,26 @@
+{
+  "contract": 1,
+  "status": "ready",
+  "id": "branch",
+  "title": "Branch",
+  "summary": "Guide one bead through a fork; discover different journeys with the same arrival.",
+  "order": 1.5,
+  "builds_on": [
+    "correspondence"
+  ],
+  "related": [
+    "return",
+    "through"
+  ],
+  "contexts": [
+    "choices",
+    "paths",
+    "equivalence"
+  ],
+  "entry": "entry.html",
+  "glyph": "glyph.svg",
+  "opening_order": 2,
+  "interaction_checks": [
+    "interaction.test.cjs"
+  ]
+}

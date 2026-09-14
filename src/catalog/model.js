@@ -14,6 +14,12 @@ const CatalogModel = (() => {
     for(const item of entries){for(const from of item.builds_on)if(ids.has(from))edges.push({from,to:item.id,type:'builds_on'});for(const other of item.related)if(ids.has(other)&&item.id<other)edges.push({from:item.id,to:other,type:'related'});}
     return{nodes,edges,height,byId,pages:Math.ceil(catalog.length/9)};
   }
-  return{ordered,layout};
+  function opening(catalog){const marked=catalog.filter(x=>Number.isInteger(x.opening_order));return marked.length?[...marked].sort((a,b)=>a.opening_order-b.opening_order):ordered(catalog).slice(0,4);}
+  function openingLayout(catalog,width){
+    const entries=opening(catalog),offset=Math.min(58,(width-152)/2),nodes=entries.map((item,i)=>({id:item.id,x:width/2+(i%2?offset:-offset),y:66+i*114}));
+    return{nodes,edges:nodes.slice(1).map((n,i)=>({from:nodes[i].id,to:n.id,type:'opening'})),height:Math.max(320,132+(nodes.length-1)*114),byId:new Map(nodes.map(n=>[n.id,n])),pages:1};
+  }
+  function next(catalog,active){const path=opening(catalog);if(!active)return path[0]||null;const i=path.findIndex(x=>x.id===active);if(i>=0)return path[i+1]||null;return ordered(catalog).find(x=>x.builds_on.includes(active)&&!path.some(p=>p.id===x.id))||null;}
+  return{ordered,layout,opening,openingLayout,next};
 })();
 if(typeof module!=='undefined')module.exports=CatalogModel;

@@ -66,6 +66,13 @@ must be acyclic; it suggests an encounter order and never locks access. A
 `related` edge is undirected and can be declared from either endpoint: adding a
 new connection does not require editing another lesson. Tags can overlap.
 
+Optional `opening_order` is a unique nonnegative integer that deliberately places
+a lesson in the small opening path. Omit it for normal library additions. The
+opening sequence is editorial guidance, distinct from dependency edges and age
+or mastery. The next control follows this sequence and opens the full constellation
+at its end. Other lessons remain immediately accessible in the full map or by
+URL. Adding an ordinary lesson still requires no host or registry changes.
+
 The gate runs the manifest's `checks` (default `lesson.test.cjs`) and optional
 `interaction_checks`. Both are repository-confined paths. Keep a new lesson's
 interaction checks in its own folder; no central lesson list needs editing.
@@ -122,7 +129,7 @@ These are trusted first-party documents. The iframe provides DOM/runtime
 isolation, not a security boundary for arbitrary third-party code. Its current
 sandbox enables scripts and same-origin behavior. A later WebGPU lesson must
 verify secure-context and feature requirements and offer the appropriate CPU
-fallback. The current nine lessons need neither a GPU API nor network access;
+fallback. The current ten lessons need neither a GPU API nor network access;
 Fold uses the browser's ordinary CSS 3D compositor.
 
 ## The two delivery forms
@@ -135,6 +142,11 @@ Fold uses the browser's ordinary CSS 3D compositor.
 - `docs/<id>.html`: a single lesson, independent of its host and siblings.
 
 ## Acceptance before ready
+
+Read `notes/encounters.md` when designing a new discovery. State the first
+gesture, its visible consequence, and what one contrasting example reveals.
+A second representation should answer a question the first encounter has made
+meaningful. Treat this as a design hypothesis that needs observation.
 
 One screen introduces one discoverable relationship. Identities survive motion;
 color has a shape or other non-color counterpart. Direct gestures update the
