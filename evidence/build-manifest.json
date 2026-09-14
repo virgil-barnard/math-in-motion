@@ -1,71 +1,71 @@
 {
-  "version": "0.4.0",
+  "version": "0.4.1",
   "lessons": 10,
   "files": [
     {
       "file": "correspondence.html",
-      "bytes": 53614,
-      "sha256": "7034ab0518150dcbd8cd112d6d16b14cfff088597a283b611172322148ac48cc"
+      "bytes": 53896,
+      "sha256": "9e546e2c64e91f825fc2aabf7f3321ec47faa220ee7d7fecc3a663b644b7c8a0"
     },
     {
       "file": "membership.html",
-      "bytes": 53609,
-      "sha256": "50dafc3c2f683ee335f5923db98a39f2362f4735e80f81d9aec154069f58ddf5"
+      "bytes": 53891,
+      "sha256": "2d8fe6fd0a6eac7471178f1b08d23a4c3d082f2b9004287b5b151e50403a4b48"
     },
     {
       "file": "branch.html",
-      "bytes": 27669,
-      "sha256": "d365b52188545a35c010d6c98268cb312d207c3d304cca83ea328784d25bc444"
+      "bytes": 28858,
+      "sha256": "59eef8b85231429df5ee74c2a13de5ad735824d17a7b469f2ff78860d7035582"
     },
     {
       "file": "composition.html",
-      "bytes": 53612,
-      "sha256": "4362ee1bf96cb00fe1f4635039f2325a928b2c0501798fedfabbdf67a82d3b25"
+      "bytes": 53894,
+      "sha256": "9e9deee75893a4766869a12c0749de7ea69ddb3089210b0e772512026bcc27fd"
     },
     {
       "file": "return.html",
-      "bytes": 22699,
-      "sha256": "5194fc74735bef6b1dcd35af26c0f65cbc48c63d979fb830f8949dd1ebd70c5b"
+      "bytes": 23888,
+      "sha256": "846cc5c4e5fb6dab776438c2861f6da1cee32072e42de436d1ff0923239b723c"
     },
     {
       "file": "undo.html",
-      "bytes": 22576,
-      "sha256": "e823397eedc6d32c35d87d2f66bc77b65be4f2c72ce7dc40f2450d5570ddeea0"
+      "bytes": 23765,
+      "sha256": "7dda84f6f72cb30a8bdafe7870622bf41e5ef8dba9ffbfd7fd28c081997d0893"
     },
     {
       "file": "same.html",
-      "bytes": 22069,
-      "sha256": "6b4e79600a78dcbb5c7d3103d8b1b732ecdd28aeb7fd2152db69d9fe458c6dc9"
+      "bytes": 23258,
+      "sha256": "b47ed42e1b43de153742932946bd26e06b4f8ed70d4c1f068c30089c881a1b4f"
     },
     {
       "file": "connections.html",
-      "bytes": 28299,
-      "sha256": "07d5a2f296e42d9cbdb71c5f58c2b2437488182efd4df2427b36fd19a7ddc486"
+      "bytes": 29488,
+      "sha256": "d37d05eba3dd25a6439511db606fb4af847f79449b184c32338fb711ca099fc6"
     },
     {
       "file": "through.html",
-      "bytes": 28575,
-      "sha256": "8483b4786eccf91ffaf3a5e2176b55755410eb43f164fd113c268d725cdb6488"
+      "bytes": 29764,
+      "sha256": "178403a70db3f596e2b0ec9e0bb7170ef8751bed75d754e79d97cd1e38456e86"
     },
     {
       "file": "fold.html",
-      "bytes": 26373,
-      "sha256": "5ce80f1ed5c251a49dc8d79cba4fd739fe381ef139dfe973cc135897b20b1ef7"
+      "bytes": 27562,
+      "sha256": "482aab7450c0598eb8ab33c73c7bf78e5d2c0e040d054f538c16230a191bc083"
     },
     {
       "file": "index.html",
-      "bytes": 22651,
-      "sha256": "3d1578a6612ffdc75456d43be85e74c974f9238fbac9717dae6bac197d16b6e4"
+      "bytes": 29658,
+      "sha256": "179e73de223597a5c67ad685a1dc2565ac0441505ff6a5ff6c6f0e15a91dc5c0"
     },
     {
       "file": "collection.html",
-      "bytes": 376219,
-      "sha256": "e72c0143ad31201165832da2e0e390db050799490b1ea98f38b8944c441b8d28"
+      "bytes": 392435,
+      "sha256": "6095ef9aecf7f00defb7648a11271b487633f4ef90ace77b9f24ce15b9be2e07"
     },
     {
       "file": "foundations.html",
-      "bytes": 52451,
-      "sha256": "4692c34c6e7c2013105b6a2add92b331244a7d60170634c31a0e79823fec306b"
+      "bytes": 52580,
+      "sha256": "087c4206027a6e8bff236fcd6b59ac13a47301c8f0dbeb3bdd55c708a8aa748d"
     }
   ]
 }

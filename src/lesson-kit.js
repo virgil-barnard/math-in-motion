@@ -49,7 +49,7 @@ const MotionKit = (() => {
       }
       for(const [key,b] of buttons)if(!seen.has(key)){b.remove();buttons.delete(key);}
     }
-    function render(){spec.render(api);range.value=String(clamp(spec.progress())*1000);range.setAttribute('aria-valuetext',spec.describe());}
+    function render(){spec.render(api);const progress=clamp(spec.progress());range.value=String(progress*1000);range.style.setProperty('--progress',`${progress*100}%`);range.setAttribute('aria-valuetext',spec.describe());}
     function changed(){announce(spec.describe());MotionBridge.changed();}
     function tone(index=0){
       if(!enabled||!audio)return;

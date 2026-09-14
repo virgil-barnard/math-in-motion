@@ -7,8 +7,10 @@
 .lesson-header{display:flex;align-items:center;justify-content:center;position:relative}.lesson-glyph{width:34px;height:34px;opacity:.75}.lesson-header #sound{position:absolute;right:0;width:46px;height:46px;padding:13px;opacity:.6;border-radius:50%}.lesson-header #sound[aria-pressed=true]{opacity:1}
 #stage{position:relative;min-height:370px;isolation:isolate}#scene,#objects{position:absolute;inset:0;width:100%;height:100%}#scene{pointer-events:none;overflow:visible}#objects{pointer-events:none}.piece{position:absolute;transform:translate(-50%,-50%);width:48px;height:48px;border-radius:50%;pointer-events:auto;touch-action:none;display:grid;place-items:center;z-index:2;cursor:grab}.piece svg{width:44px;height:44px;filter:drop-shadow(0 0 9px #eedbb61a)}.piece:hover{background:#83d6d10b}.piece:active,.piece.dragging{cursor:grabbing;background:#eedbb610}.piece.choice{width:64px;height:56px;border-radius:14px;cursor:pointer;background:#83d6d108;border:1px solid #64889655}.piece.choice[aria-pressed=true]{border-color:#eedbb6aa;background:#eedbb60d}.piece.choice svg{width:48px;height:42px;filter:none}.piece.gate-target{width:78%;height:70px;border-radius:15px;background:transparent;z-index:1}
 .lesson-footer{display:flex;flex-direction:column;justify-content:center;gap:12px;padding:0 max(8px,5%)}.transport{display:flex;align-items:center;gap:18px}.round-control{width:48px;height:48px;flex:none;border:1px solid #afc3ca40;border-radius:50%;padding:15px;background:#83d6d108}.quiet-control{width:46px;height:46px;flex:none;border-radius:50%;padding:13px;opacity:.7}.quiet-control:hover{background:#83d6d10d;opacity:1}.tools{display:flex;align-items:center;justify-content:center;gap:22px}.example-progress{display:flex;gap:10px;min-width:80px;justify-content:center;align-items:center}.example-dot{width:4px;height:4px;border-radius:50%;background:#64889666}.example-dot.active{background:var(--ink);box-shadow:0 0 0 3px #eedbb619}
-input[type=range]{width:100%;min-width:0;height:48px;margin:0;background:transparent;accent-color:var(--aqua);cursor:ew-resize}
-.embedded #lesson-app{grid-template-rows:42px minmax(370px,1fr) 128px;min-height:540px}.embedded .lesson-glyph{opacity:.35;width:26px;height:26px}
+/* One inspection control across the foundation engine and portable author kit. */
+input[type=range]{--progress:0%;width:100%;min-width:0;height:48px;appearance:none;-webkit-appearance:none;background:transparent;cursor:ew-resize;touch-action:pan-y;margin:0}input[type=range]::-webkit-slider-runnable-track{height:3px;border-radius:8px;background:linear-gradient(to right,rgba(234,209,155,.7) 0%,rgba(234,209,155,.7) var(--progress),rgba(125,159,174,.22) var(--progress),rgba(125,159,174,.22) 100%)}input[type=range]::-moz-range-track{height:3px;border-radius:8px;background:rgba(125,159,174,.22)}input[type=range]::-moz-range-progress{height:3px;background:rgba(234,209,155,.7)}input[type=range]::-webkit-slider-thumb{appearance:none;-webkit-appearance:none;width:18px;height:18px;border-radius:50%;border:4px solid #152736;background:var(--ink);box-shadow:0 0 0 1px rgba(238,219,182,.42);margin-top:-7.5px}input[type=range]::-moz-range-thumb{width:10px;height:10px;border-radius:50%;border:4px solid #152736;background:var(--ink);box-shadow:0 0 0 1px rgba(238,219,182,.42)}
+
+.embedded #lesson-app{grid-template-rows:42px minmax(370px,1fr) 128px;min-height:540px}.embedded .lesson-glyph{visibility:hidden;width:26px;height:26px}
 @media(max-width:560px){#lesson-app{padding-left:10px;padding-right:10px}.lesson-footer{padding:0 12px}.transport{gap:12px}}
 @media(prefers-reduced-motion:reduce){*,*:before,*:after{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
 
@@ -43,14 +45,16 @@ const MotionBridge = (() => {
     const data = event.data;
     if (data.type === 'restore') {
       if (data.state) hooks.restore(data.state);
+      hooks.pause();
       changed();
+      send('restored', {request: data.request, state: hooks.snapshot()});
     } else if (data.type === 'pause') {
       hooks.pause();
       send('paused', {request: data.request, state: hooks.snapshot()});
     }
   });
   return {
-    connect(value) { hooks = value; send('ready'); },
+    connect(value) { hooks = value; if (embedded) hooks.pause(); send('ready', {acknowledgesRestore: true}); },
     changed,
     explored() { send('explored'); }
   };
@@ -107,7 +111,7 @@ const MotionKit = (() => {
       }
       for(const [key,b] of buttons)if(!seen.has(key)){b.remove();buttons.delete(key);}
     }
-    function render(){spec.render(api);range.value=String(clamp(spec.progress())*1000);range.setAttribute('aria-valuetext',spec.describe());}
+    function render(){spec.render(api);const progress=clamp(spec.progress());range.value=String(progress*1000);range.style.setProperty('--progress',`${progress*100}%`);range.setAttribute('aria-valuetext',spec.describe());}
     function changed(){announce(spec.describe());MotionBridge.changed();}
     function tone(index=0){
       if(!enabled||!audio)return;

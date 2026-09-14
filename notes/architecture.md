@@ -1,6 +1,6 @@
 # A growing language of mechanisms
 
-Implemented in version 0.4.0: ten independent lesson documents, a generated
+Implemented in version 0.4.1: ten independent lesson documents, a generated
 constellation menu, a local authoring contract, and a single-file collection
 alongside the lightweight Pages edition. Branch extends the local lesson boundary.
 The catalog now separates a small opening path from the complete constellation.
@@ -50,8 +50,9 @@ state structure. Each leaf can be opened and shared by itself.
 
 At build time, the catalog discovers manifests in lesson folders. It checks
 paths, IDs, missing relationships, and cycles. Source includes produce complete
-documents with no runtime imports. At run time, the host mounts one document
-in an iframe and exchanges a small readiness/pause/snapshot protocol.
+documents with no runtime imports. At run time, the host exchanges a small readiness/pause/snapshot protocol with
+isolated lesson documents. It briefly prepares an inert incoming iframe beside
+the paused outgoing iframe, then removes the outgoing document at the handoff.
 
 This boundary supports SVG and CSS 3D today, and canvas or WebGPU later, without
 making every lesson inherit the same scene engine. The optional kit handles
@@ -60,11 +61,27 @@ branches. The original foundation trio retains its existing shared engine
 behind the same document interface. Further edits to those three experiences
 may still require reading that engine. New lessons do not.
 
-Only one lesson runs at a time. Opening the map pauses the current lesson;
-changing lessons saves its JSON state and replaces the document. Returning
-restores that state. State lasts through navigation in this session, while a
+Only the arrived lesson accepts input. Opening the map pauses the current lesson;
+changing lessons saves its JSON state and waits for the next document to restore
+before replacing the visible surface. Returning restores that state. State lasts through navigation in this session, while a
 refresh begins fresh. Only the visited-node set uses local storage. Sound is
 muted on navigation and does not start automatically on restoration.
+
+Navigation uses a 110 ms exit and 180 ms arrival fade. Reduced motion skips both.
+Readiness is bounded by a six-second timeout; a failed incoming document leaves
+the previous view available. Rapid navigation cancels staging and unfinished
+fades. Older cached bridges acknowledge an ordered restore-then-pause exchange.
+Each map scope keeps its own page and parent scroll position. The iframe retains
+its internal scroll when returning from the map; destroyed documents restore
+mathematical state, not an arbitrary internal viewport. See
+[Continuity review](continuity.md) for the aesthetic decisions and device checks.
+
+Transparent preparation uses native [inert](https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Global_attributes/inert)
+to exclude the incoming surface from input and focus. The host also supplies
+pointer blocking and accessible visibility state. The
+[reduced-motion preference](https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/At-rules/@media/prefers-reduced-motion)
+is observed both in CSS and during navigation. These platform semantics do not
+substitute for browser and assistive-technology validation of our implementation.
 
 The one-file edition embeds all ready documents. The Pages entry stays small
 and opens adjacent documents. Both are produced from the same sources. This

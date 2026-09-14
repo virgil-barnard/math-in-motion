@@ -8,10 +8,15 @@ paths and cross-connections; every experience is available immediately.
 no server, account, internet connection, external font, or runtime package.
 For GitHub Pages, use the lightweight `docs/index.html` and its adjacent lessons.
 
-Version **0.4.0** adds Branch and a quieter opening path. One bead meets one
-fork before the same action repeats. An earlier journey remains visible, allowing
-different routes to reveal the same arrival. Graph/matrix and spatial studies
-remain available in the full constellation, outside the default opening sequence.
+Version **0.4.1** polishes continuity between the ten experiences. The previous
+view stays visible until the next lesson has restored; a short fade carries the
+change. The map remembers its page and position, embedded headers are quieter,
+and every lesson shares the same inspection track. Reduced motion skips the
+fades. Failed loads retain the previous view and offer retry.
+
+Branch and the four-encounter opening remain the newest content. The next
+proposed encounters—Bundle, Journeys, and Record—are specified in the
+[gap plan](curriculum/next-encounters.md); they are not implemented lessons yet.
 
 | Document | Discovery | Try |
 |---|---|---|
@@ -123,6 +128,8 @@ a pull request and configuring Pages remain repository-owner actions.
 
 - [Architecture and navigation](notes/architecture.md)
 - [Design philosophy](notes/design.md)
+- [Aesthetic review and transition design](notes/continuity.md)
+- [Missing encounters and the next lesson designs](curriculum/next-encounters.md)
 - [Encounter design and the next hypotheses](notes/encounters.md)
 - [Authoring contract](AUTHORING.md)
 - [Curriculum charter](curriculum/plan.md)

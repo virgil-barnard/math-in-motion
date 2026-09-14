@@ -31,6 +31,7 @@ for item in discover():
             checked.add(local)
 run('node', 'tests/interaction.cjs')
 run('node', 'tests/catalog.cjs')
+run('node', 'tests/catalog-transitions.cjs')
 run(sys.executable, 'tests/contract.py')
 run(sys.executable, 'tests/offline.py')
 print('All implemented gates passed. Browser/device and learner studies remain separate.')

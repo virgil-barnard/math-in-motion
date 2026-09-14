@@ -1,6 +1,6 @@
 **Mathematics in Motion — a wordless design charter and initial plan**
 
-Planning draft 0.6 · 14 September 2026
+Planning draft 0.7 · 14 September 2026
 
 The learner enters a small mathematical environment and discovers its rules through action. Objects, relationships, and transformations carry the explanation. The central design task is to make those rules perceivable, controllable, and reusable across unfamiliar examples.
 
@@ -9,6 +9,12 @@ The working prototype now implements correspondence, membership, Branch, composi
 Version 0.2.0 established a portable lesson-document contract; version 0.3.0 extends it with three locally implemented lessons and discoverable interaction checks. A lesson folder owns its model, view, glyph, metadata, checks, and short author packet; the build discovers ready folders automatically. The original foundation trio remains behind its existing shared engine, while new lessons are independent modules. The small catalog distinguishes acyclic suggested progression from undirected conceptual connections. All lessons are available immediately. A visited marker is not an assessment. See `AUTHORING.md` and `notes/architecture.md` in the source package for the implemented boundary and future growth decisions.
 
 This revision establishes a wordless learner surface as the direction for the series. The written charter is for authors, collaborators, and adult readers. The project remains a proposed collection of independent HTML experiences, eventually published together through a GitHub Pages repository. Its educational effectiveness has not yet been established.
+
+The 0.4.1 continuity pass keeps the ten lessons and adds no new curriculum nodes.
+The immediate content priorities are specified in [Next encounters](next-encounters.md):
+Bundle, Journeys, and Record, with conservation first made clearer within the
+existing Correspondence experience if observation warrants it. This smaller plan
+is the current implementation guide; the subject directions below remain a charter.
 
 **1. Build a language of actions.**
 
