@@ -1,6 +1,6 @@
 # Mathematics in Motion
 
-Ten wordless mathematical experiences, connected by a growing constellation.
+Eleven wordless mathematical experiences, connected by a growing constellation.
 Every lesson is an independent offline document. The catalog offers suggested
 paths and cross-connections; every experience is available immediately.
 
@@ -8,20 +8,22 @@ paths and cross-connections; every experience is available immediately.
 no server, account, internet connection, external font, or runtime package.
 For GitHub Pages, use the lightweight `docs/index.html` and its adjacent lessons.
 
-Version **0.4.1** polishes continuity between the ten experiences. The previous
-view stays visible until the next lesson has restored; a short fade carries the
-change. The map remembers its page and position, embedded headers are quieter,
-and every lesson shares the same inspection track. Reduced motion skips the
-fades. Failed loads retain the previous view and offer retry.
+Version **0.5.0** adds Bundle. Move a capsule and every object inside moves
+with it. Pull one object out, then regroup the same collection in another way.
+The first encounter has two objects; the second adds a third. The timeline
+retraces the latest change, including a direct drag, and preserves the distinction
+between replaying history and undoing a mathematical operation.
 
-Branch and the four-encounter opening remain the newest content. The next
-proposed encounters—Bundle, Journeys, and Record—are specified in the
-[gap plan](curriculum/next-encounters.md); they are not implemented lessons yet.
+The four-encounter opening stays small. Bundle joins the full constellation and
+works independently as `docs/bundle.html` or through `#bundle`. The previous
+transition polish remains: lessons restore before appearing, maps remember their
+positions, and all experiences share the same inspection control.
 
 | Document | Discovery | Try |
 |---|---|---|
 | `correspondence.html` | Every object can have a partner | Pair, rearrange, and repair unequal collections |
 | `membership.html` | One object can satisfy two rules | Sort into one, both, or neither region |
+| `bundle.html` | Several objects can move as one unit | Drag the capsule; unpack one shape and regroup the same collection |
 | `branch.html` | Different journeys can meet at the same arrival | Guide a bead through open rings; return and compare another journey |
 | `composition.html` | Order can change an operation's result | Swap the routing mechanisms and trace every shape |
 | `return.html` | Separate cycles can return together | Drag any shape around its ring; either ring drives both |
@@ -41,7 +43,7 @@ geometric preview opens its lesson. The next control follows this small sequence
 then invites exploration of the full constellation. It never uses visit counts
 as evidence that someone is ready for advanced material.
 
-The constellation control beneath the opening path reveals all ten lessons,
+The constellation control beneath the opening path reveals all eleven lessons,
 paged in groups of nine. Solid paths suggest what builds on what; dotted paths
 connect related ideas. The path control returns to the opening sequence. Every
 lesson is immediately available, including through its direct URL fragment.
@@ -56,6 +58,14 @@ The visible learning surface has no written words, numerals, scores, or subject
 menus. Native controls retain accessible names and descriptions. Use play,
 rewind, or the range to inspect motion. The lower tile-stack control introduces
 another example. Optional sound starts muted and is muted when navigating.
+
+In Bundle, drag an unoccupied part of the capsule boundary to carry its contents.
+Drag an object into free space to unpack it, or onto another object or capsule
+to join. For a selection-based path, choose a shape and then its open ring or a
+different object. Arrow keys move the focused object or capsule. Play and rewind
+inspect the latest change; they do not produce additional copies of the shapes.
+The new [author packet](lessons/bundle/README.md) specifies the partition model,
+gestures, history semantics, and validation limits.
 
 In Branch, drag the bead toward either open ring or tap the ring. Tapping the
 bead demonstrates one step and stops. After a completed journey, return to the

@@ -1,8 +1,9 @@
-# Validation record — version 0.4.1
+# Validation record — version 0.5.0
 
-This release polishes navigation and shared controls across the existing ten
-lessons. It adds no mathematical models or learner-facing curriculum nodes.
-The aesthetic review and future encounter designs are author documents.
+Bundle adds one independent lesson with two encounters: moving a pair as one
+unit, then unpacking and regrouping a collection of three. The four-encounter
+opening is unchanged. The new lesson is discovered through its manifest; no
+host or shared interaction-kit code was changed.
 
 `python3 check.py` completed successfully on 14 September 2026, using Python
 and Node standard libraries. Full command output is `check-output.txt`.
@@ -10,57 +11,78 @@ and Node standard libraries. Full command output is `check-output.txt`.
 
 | Gate | Result |
 |---|---|
-| Build | Ten ready lessons and thirteen HTML exports |
+| Build | Eleven ready lessons and fourteen HTML exports |
 | Existing mathematical and geometry checks | 132,411 passed |
+| Bundle partition, conservation, replay, and geometry | 2,973 passed |
 | Existing exported lesson interactions | 704 passed |
+| Bundle exported interactions | 81 passed |
 | Catalog navigation and document protocol | 214 passed |
-| New transition lifecycle checks | 40 passed |
+| Transition lifecycle | 40 passed |
 | Manifest and build contract | 16 passed |
-| Offline inspection | All thirteen HTML files passed |
+| Offline inspection | All fourteen HTML files passed |
 
-Totals: 132,411 model/geometry checks and 958 DOM/event/message assertions,
-plus contract and packaging gates. Exhaustive small-domain enumeration produces
-many assertions; these totals are not coverage percentages or learning evidence.
+Totals: 135,384 model/geometry checks and 1,039 DOM/event/message assertions,
+plus contract and packaging gates. Enumeration produces many assertions; these
+counts are not coverage percentages or evidence of educational effectiveness.
 
-## What the new checks establish
+## New mathematical evidence
 
-The host retains its previous view while a measurable incoming document is
-transparent and inert. Readiness alone is insufficient for arrival; a matching
-restoration acknowledgement is required. The tests distinguish the outgoing
-fade, the surface change, and the incoming fade, including when input and focus
-are requested. Each settled navigation removes its obsolete document and timers.
+The test constructs the partitions of two and three identities independently
+from label assignments. Every unpack/join transfer is compared with an
+independent element-pair equivalence oracle. The operations reach all two or
+five partitions. Every identity remains present exactly once; regrouping can
+change the equivalence relation while preserving the underlying collection.
 
-Checks cover snapshots on revisit; stale windows, mismatched lessons and request
-IDs; cancellation while loading, leaving, and arriving; a readiness timeout;
-explicit load failure and retry; paired history events; reduced motion changing
-mid-transition; page visibility changes; and independent map page/scroll memory.
-Older cached v1 bridges use an ordered restore-then-pause exchange. Uncorrelated
-state messages cannot reveal an older document prematurely.
+Translations preserve member-to-member displacement, including at the board
+edge, and keep nonmembers fixed. The intermediate blocks in a guided regrouping
+are checked against the intersection of the two endpoint equivalence relations.
+Replay conserves identities and ends at the exact target. Snapshot round trips,
+invalid-state recovery, copy isolation, and bounded long-gesture records are
+covered separately.
 
-The actual generated bridge is exercised with foundation, kit, Branch, and Fold
-documents. It acknowledges the restored paused snapshot with the request ID.
-The existing gesture, cancellation, geometry, and offline gates still pass.
-The common timeline CSS is assembled into all exports by the builder; there is
-no added runtime stylesheet request or dependency.
+Geometry checks cover first swept contact with an unrelated object, permitted
+oblique motion, whole-path separation, and packing two or three objects. Native
+target bounds and separation are checked at 260, 280, 320, 390, and 736-pixel
+stage widths and at 370/500-pixel heights. These are geometry calculations,
+not measurements of a browser's rendered layout.
 
-## Aesthetic review and limits
+## New interaction evidence
 
-The opening path, Branch reunion, and Composition scene SVGs were rasterized with
-Inkscape and inspected alongside the merged source. These scenes support the
-judgment about palette, spacing, persistent shapes, and the difference in
-conceptual density. They do not show browser-rendered host chrome or animations.
-No new scene artwork was needed for this navigation release.
+The exported lesson scripts exercise boundary dragging, individual unpacking,
+rejoining by direct drop or selection, the open-ring destination, and regrouping
+three identities as a different pair or one full bundle. A small pull released
+inside its original capsule returns to the original group. After regrouping,
+moving the new pair leaves its former partner in place.
 
-The public preview URL was blocked in this environment. No alternate browser
-route was used. The DOM harness models events, styles assigned by JavaScript,
-messages, focus requests, and scroll requests. It does not implement browser
-layout, CSS interpolation, inert propagation, native focus, touch input, or real
-iframe loading. Those properties remain unverified on devices. The timing values
-are reviewable design choices, not measured performance results.
+Other checks cover sampled-path replay, keyboard movement, reduced motion,
+editing during inspection (including an approach that temporarily overlaps a
+clearance region), snapshot restoration, pointer cancellation, capture
+loss, Escape, navigation during a drag, second-pointer exclusion, and resize
+interruption. The shared test harness gained an explicit resize callback helper;
+its observers still run only when a test requests that simulated event.
 
-A browser review should inspect rapid map/lesson changes, return from a scrolled
-map, reduced motion, keyboard focus, and the shared range control on a narrow
-screen. Actual CSS 3D compositing in Fold remains a separate pre-existing limit.
-No learner study, age-specific effectiveness result, or accessibility conformance
-is claimed. Bundle, Journeys, Record, the peg board, and advanced branches remain
-future designs; their descriptions do not count as implemented features.
+## Visual review and limits
+
+Scene SVGs from the actual drawing output were rasterized with Inkscape and
+inspected. Desktop scenes show the initial capsule, moved pair and its trace,
+unpack destination, unpacked objects, regrouped pair, and full bundle. Narrow
+scenes show the pair, third object, regrouped pair, and three-object bundle.
+Representative SVGs are under `evidence/scenes/bundle-*.svg`.
+
+The capsule uses an explicit SVG fill opacity so that its translucent material
+also renders correctly in the vector inspection tool. Filled shapes denote the
+current identities; faint dashed boundaries and hollow marks record the earlier
+pose. Whether those traces help a young learner distinguish grouping from
+quantity remains an observation question in the lesson's author packet.
+
+The browser preview route remains unavailable in this environment; no alternate
+route was used. Scene renders and the DOM harness do not validate browser layout,
+CSS interpolation, real iframe integration, native focus, actual touch, or
+accessibility conformance. This release does not claim learner-study results or
+an age-specific benefit. Device review should focus on grabbing the capsule
+boundary, pulling and dropping an individual, and scrubbing the latest gesture.
+
+The latest gesture is bounded to 256 samples. Unusually long paths are thinned
+with their endpoints retained, so fine path detail can be lost. The timeline
+represents sample order rather than the original gesture's elapsed time.
+Journeys, Record, and the peg-board probability simulation remain planned work.

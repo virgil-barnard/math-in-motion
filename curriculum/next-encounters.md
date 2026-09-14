@@ -1,12 +1,13 @@
 # Fill the gaps between familiar actions
 
-Planning revision for 0.4.1. These are designs, not implemented lessons or a
-fixed age ladder. Keep the existing four-encounter opening small while the next
+Planning revision for 0.5.0. Bundle is now implemented; the later encounters
+remain designs, with no fixed age ladder. Keep the existing four-encounter opening small while the next
 mechanisms are tried. A new module need not automatically join that opening.
 
 The collection has strong destinations: composition, common returns, relations,
 and folding. The missing groundwork is often a reason to reuse or record an
-action. Prioritize three encounters: **Bundle**, **Journeys**, and **Record**.
+action. The first of the three proposed encounters, **Bundle**, is implemented.
+**Journeys** and **Record** are next.
 Each starts with something the learner can already touch.
 
 ## Before adding another module
@@ -22,7 +23,7 @@ A separate “quantity stays the same” module would currently duplicate its wo
 
 | Priority and working title | First still scene and gesture | What persists | Contrasting encounter | Later use |
 |---|---|---|---|---|
-| 1 · Bundle | Two recognizable objects sit in a fine transparent capsule. Drag its boundary and both travel together; pull one object out to unpack it. | Every individual identity remains visible | Regroup three objects as a pair and a singleton in two ways; unpack to compare the same underlying collection | Units, grouping, decomposition, and treating a construction as an object |
+| 1 · Bundle (implemented) | Two recognizable objects sit in a fine transparent capsule. Drag its boundary and both travel together; pull one object out to unpack it. | Every individual identity remains visible | Regroup three objects as a pair and a singleton in two ways; unpack to compare the same underlying collection | Units, grouping, decomposition, and treating a construction as an object |
 | 2 · Journeys | Start from Branch's familiar two-fork mechanism. Guide one bead; its completed route leaves a small geometric record at its arrival | The complete sequence of choices, not just the endpoint | Repeat the same route and highlight its existing record; choose a different route that arrives at the same place and add a distinct record | Many-to-one maps, equivalence classes, counting possibilities, then sampling |
 | 3 · Record | Join one familiar source shape to one destination. Drag the completed link into a recording position; its endpoints become the headers of a single cell | The ordered source/destination pair | Add a second endpoint and compare one present connection with an absent one; later reverse a connection | Relations, Boolean matrices, directed graphs, and composition through witnesses |
 
@@ -111,9 +112,10 @@ design problems, not promises attached to an early visual pattern.
 
 ## Scope for the next content release
 
-Prototype Bundle first, with one capsule and a contrasting regrouping. Keep
-Journeys and Record as independent author packets and implement them one at a
-time. Do not build a generic physics engine, cross-lesson state bus, or universal
+Bundle now provides one capsule and a contrasting regrouping, with a local
+model, geometry, view, and checks. See its [author packet](../lessons/bundle/README.md).
+Its opening-path placement still needs observation. Prototype Journeys next,
+then Record, keeping each encounter independently reviewable. Do not build a generic physics engine, cross-lesson state bus, or universal
 renderer in advance. Promote a shared primitive when two concrete lessons need
 the same behavior. See [AUTHORING.md](../AUTHORING.md) for the small module boundary.
 

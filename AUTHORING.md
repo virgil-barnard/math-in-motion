@@ -146,7 +146,7 @@ These are trusted first-party documents. The iframe provides DOM/runtime
 isolation, not a security boundary for arbitrary third-party code. Its current
 sandbox enables scripts and same-origin behavior. A later WebGPU lesson must
 verify secure-context and feature requirements and offer the appropriate CPU
-fallback. The current ten lessons need neither a GPU API nor network access;
+fallback. The current eleven lessons need neither a GPU API nor network access;
 Fold uses the browser's ordinary CSS 3D compositor.
 
 ## The two delivery forms
